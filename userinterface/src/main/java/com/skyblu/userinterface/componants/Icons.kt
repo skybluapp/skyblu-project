@@ -21,7 +21,7 @@ sealed class BottomNavIcon(
     object Profile : BottomNavIcon(
         title = "Profile",
         icon = R.drawable.person,
-        route = "profile"
+        route = "map"
     )
 }
 

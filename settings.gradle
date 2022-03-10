@@ -13,7 +13,7 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "SkyBlu"
-include ':app'
 include ':userinterface'
 include ':models'
 include ':trackingservice'
+include ':skybluapp'

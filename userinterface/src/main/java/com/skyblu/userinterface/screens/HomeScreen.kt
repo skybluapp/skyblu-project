@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.skyblu.models.jump.Jump
 import com.skyblu.models.jump.generateSampleJump
@@ -23,7 +24,8 @@ fun HomeScreen(
         generateSampleJump(), generateSampleJump(),
         generateSampleJump() , generateSampleJump(),
         generateSampleJump(), generateSampleJump(),generateSampleJump(),generateSampleJump(),generateSampleJump(),generateSampleJump(),generateSampleJump(),generateSampleJump(),generateSampleJump(),generateSampleJump(),generateSampleJump(),generateSampleJump(),generateSampleJump(),generateSampleJump(),
-    )
+    ),
+    navController : NavController = rememberNavController()
 ){
     Scaffold(
         content = {
@@ -36,11 +38,12 @@ fun HomeScreen(
 
         topBar = {
             AppTopAppBar(
-                title = "Skyblu"
+                title = "Skyblu",
+                navigationIcon = {}
             )
         },
         bottomBar = {
-            AppBottomAppBar(navController = rememberNavController( ))
+            AppBottomAppBar(navController = navController)
         },
         
         floatingActionButton = {

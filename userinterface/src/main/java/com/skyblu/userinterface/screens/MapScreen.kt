@@ -1,25 +1,26 @@
 package com.skyblu.userinterface.screens
 
+import android.util.Log
+import android.widget.Toolbar
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.skyblu.userinterface.componants.*
 
+@Preview
 @Composable
-fun MapScreen(onClose : () -> Unit){
+fun MapScreen(onClose : () -> Unit = {}){
+    Log.d("hi", "hi")
     Scaffold(
         topBar = {
-
-            Tool()
-
+                 Toolbar(onPreviousClicked = { onClose() })
         },
         content = { JumpMap()}
     )
 }
 
-@Preview
 @Composable
-fun Tool(){
+fun Toolbar(onPreviousClicked : () ->Unit){
     AppTopAppBar(
         title = "",
         navigationIcon = {
@@ -27,7 +28,7 @@ fun Tool(){
                 listOf(
                     MenuAction(
                         menuIcon = MenuIcon.Previous,
-                        onClick = {}),
+                        onClick = {onPreviousClicked()}),
                 ),
             )
         }

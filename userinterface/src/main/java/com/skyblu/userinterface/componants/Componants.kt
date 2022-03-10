@@ -212,14 +212,15 @@ fun AppTopAppBar(
     title: String,
     color: Color = MaterialTheme.colors.background,
     navigationIcon: @Composable () -> Unit = {},
-    actionIcons: @Composable () -> Unit = {}
+    actionIcons: @Composable () -> Unit = {},
 ) {
     TopAppBar(
         title = { Text(text = title) },
-        modifier = Modifier.background(color = Color.Gray),
+        modifier = Modifier.background(color = color),
         backgroundColor = color,
         contentColor = MaterialTheme.colors.onBackground,
-        actions = { Row { actionIcons() } }
+        actions = { Row { actionIcons() } },
+        navigationIcon = {Row {navigationIcon()}}
     )
 }
 
