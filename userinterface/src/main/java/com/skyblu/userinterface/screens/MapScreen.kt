@@ -1,36 +1,31 @@
 package com.skyblu.userinterface.screens
 
 import android.util.Log
-import android.widget.Toolbar
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
 import com.skyblu.userinterface.componants.*
 
-@Preview
+
 @Composable
-fun MapScreen(onClose : () -> Unit = {}){
-    Log.d("hi", "hi")
+fun MapScreen(navController: NavController){
+
+    val navIcon = AppIcon.Map
     Scaffold(
         topBar = {
-                 Toolbar(onPreviousClicked = { onClose() })
+
+            AppTopAppBar(
+                title = navIcon.title,
+                navigationIcon = {
+                    MenuActionList(menuActions = listOf(
+                        MenuAction(onClick = { navController.navigate("home"){popUpTo("home"){inclusive = true} } }, AppIcon.Previous)
+                    ))
+                }
+            )
+
         },
         content = { JumpMap()}
     )
 }
 
-@Composable
-fun Toolbar(onPreviousClicked : () ->Unit){
-    AppTopAppBar(
-        title = "",
-        navigationIcon = {
-            MenuActionList(
-                listOf(
-                    MenuAction(
-                        menuIcon = MenuIcon.Previous,
-                        onClick = {onPreviousClicked()}),
-                ),
-            )
-        }
-    )
-}

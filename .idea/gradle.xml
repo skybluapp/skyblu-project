@@ -10,10 +10,12 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/database" />
             <option value="$PROJECT_DIR$/models" />
             <option value="$PROJECT_DIR$/skybluapp" />
             <option value="$PROJECT_DIR$/trackingservice" />
             <option value="$PROJECT_DIR$/userinterface" />
+            <option value="$PROJECT_DIR$/utilities" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

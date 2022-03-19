@@ -20,6 +20,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -38,8 +39,8 @@ fun AppTextFieldPreview() {
         value = value,
         onValueChanged = { value = it },
         placeholder = "TextField",
-        leadingIcon = R.drawable.plane,
-        trailingIcon = R.drawable.plane
+        leadingIcon = R.drawable.blue_plane,
+        trailingIcon = R.drawable.blue_plane
     )
 }
 @Composable
@@ -131,8 +132,8 @@ fun AppButtonPreview() {
     AppButton(
         onClick = {},
         text = "Button",
-        leadingIcon = R.drawable.plane,
-        trailingIcon = R.drawable.plane
+        leadingIcon = R.drawable.blue_plane,
+        trailingIcon = R.drawable.blue_plane
     )
 }
 @Composable
@@ -183,7 +184,7 @@ fun AppButton(
 @Composable
 fun AppDisplayPhoto(
     size: Dp,
-    image : ImageBitmap,
+    image: ImageBitmap,
     onClick: () -> Unit
 ) {
     Image(
@@ -200,7 +201,10 @@ fun AppDisplayPhoto(
 @Composable
 @Preview(showBackground = true)
 fun AppDisplayPhotoPreview() {
-    val bitmap = BitmapFactory.decodeResource(LocalContext.current.resources, R.drawable.skydiver).asImageBitmap()
+    val bitmap = BitmapFactory.decodeResource(
+        LocalContext.current.resources,
+        R.drawable.skydiver
+    ).asImageBitmap()
     AppDisplayPhoto(
         size = 60.dp,
         image = bitmap,
@@ -211,7 +215,7 @@ fun AppDisplayPhotoPreview() {
 fun AppTopAppBar(
     title: String,
     color: Color = MaterialTheme.colors.background,
-    navigationIcon: @Composable () -> Unit = {},
+    navigationIcon: @Composable (() -> Unit)? = null,
     actionIcons: @Composable () -> Unit = {},
 ) {
     TopAppBar(
@@ -220,10 +224,9 @@ fun AppTopAppBar(
         backgroundColor = color,
         contentColor = MaterialTheme.colors.onBackground,
         actions = { Row { actionIcons() } },
-        navigationIcon = {Row {navigationIcon()}}
+        navigationIcon = navigationIcon
     )
 }
-
 @Composable
 @Preview(showBackground = true)
 fun PreviewAppTopAppBar() {
@@ -233,7 +236,7 @@ fun PreviewAppTopAppBar() {
             MenuActionList(
                 listOf(
                     MenuAction(
-                        menuIcon = MenuIcon.Previous,
+                        appIcon = AppIcon.Previous,
                         onClick = {}),
                 ),
             )
@@ -242,26 +245,25 @@ fun PreviewAppTopAppBar() {
             MenuActionList(
                 menuActions = listOf<MenuAction>(
                     MenuAction(
-                        menuIcon = MenuIcon.Info,
+                        appIcon = AppIcon.Info,
                         onClick = {}),
                     MenuAction(
-                        menuIcon = MenuIcon.Person,
+                        appIcon = AppIcon.Person,
                         onClick = {}),
                     MenuAction(
-                        menuIcon = MenuIcon.Parachute,
+                        appIcon = AppIcon.Parachute,
                         onClick = {}),
                     MenuAction(
-                        menuIcon = MenuIcon.Key,
+                        appIcon = AppIcon.Key,
                         onClick = {}),
                 )
             )
         },
     )
 }
-
 @Composable
 fun RowScope.AddItem(
-    screen: BottomNavIcon,
+    screen: AppIcon,
     navController: NavController
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -288,12 +290,12 @@ fun RowScope.AddItem(
 }
 @Composable
 fun MenuActionList(
-    menuActions: List<MenuAction>
+    menuActions: List<MenuAction>,
 ) {
     for (action in menuActions) {
         IconButton(onClick = { action.onClick() }) {
             Icon(
-                painter = painterResource(id = action.menuIcon.icon),
+                painter = painterResource(id = action.appIcon.icon),
                 contentDescription = null,
                 tint = MaterialTheme.colors.onBackground
             )
@@ -301,19 +303,45 @@ fun MenuActionList(
     }
 }
 @Composable
+fun MenuActionList(
+    appIcon: List<AppIcon>,
+    navController: NavController
+) {
+    for (action in appIcon) {
+        IconButton(onClick = { navController.navigate(action.route) }) {
+            Icon(
+                painter = painterResource(id = action.icon),
+                contentDescription = null,
+                tint = MaterialTheme.colors.onBackground
+            )
+        }
+    }
+}
+@Composable
+fun BasicIcon(list: List<AppIcon>) {
+    for (action in list) {
+        Icon(
+            painter = painterResource(id = action.icon),
+            contentDescription = null,
+            tint = MaterialTheme.colors.onBackground
+        )
+    }
+}
+@Composable
 fun AppBottomAppBar(
     navController: NavController
 ) {
-    val bottomNavIcons = listOf<BottomNavIcon>(
-        BottomNavIcon.Home,
-        BottomNavIcon.Profile
+    val bottomNavIcons = listOf<AppIcon>(
+        AppIcon.Home,
+        AppIcon.Profile
     )
     BottomNavigation {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
 
         bottomNavIcons.forEach { bottomNavIcon ->
-            var selected = currentDestination?.hierarchy?.any { it.route == bottomNavIcon.route } == true
+            var selected =
+                currentDestination?.hierarchy?.any { it.route == bottomNavIcon.route } == true
             BottomNavigationItem(
                 selected = currentDestination?.hierarchy?.any { it.route == bottomNavIcon.route } == true,
                 onClick = {
@@ -333,14 +361,20 @@ fun AppBottomAppBar(
                     )
                 },
                 label = {
-                    Text(text = bottomNavIcon.title, color = if(selected){MaterialTheme.colors.primary}else{MaterialTheme.colors.onBackground})
+                    Text(
+                        text = bottomNavIcon.title,
+                        color = if (selected) {
+                            MaterialTheme.colors.primary
+                        } else {
+                            MaterialTheme.colors.onBackground
+                        }
+                    )
                 },
                 modifier = Modifier.background(MaterialTheme.colors.background)
             )
         }
     }
 }
-
 @Composable
 @Preview(showBackground = true)
 fun PreviewAppBottomAppBar(
@@ -348,21 +382,18 @@ fun PreviewAppBottomAppBar(
 ) {
     AppBottomAppBar(navController = navController)
 }
-
-
 @Composable
 fun AppBanner(
-    text : String,
+    text: String,
     menuAction: MenuAction,
     color: Color
-){
+) {
     Row(
         Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colors.background),
         verticalAlignment = Alignment.CenterVertically,
-
-    ){
+    ) {
         Text(
             text = "This is a Banner",
             Modifier
@@ -380,30 +411,30 @@ fun AppBanner(
         }
     }
 }
-
 @Composable
 @Preview(showBackground = true)
-fun AppBannerPreview(){
+fun AppBannerPreview() {
     AppBanner(
         text = "This is a Banner",
-        menuAction = MenuAction(onClick = {}, menuIcon = MenuIcon.Close),
+        menuAction = MenuAction(
+            onClick = {},
+            appIcon = AppIcon.Close
+        ),
         color = MaterialTheme.colors.background
     )
 }
-
 @Composable
-fun AppJumpCard(){
+fun AppJumpCard() {
     Column {
         AppJumpCardHeader()
-        Box(Modifier.height(350.dp)){
+        Box(Modifier.height(350.dp)) {
             JumpMap()
         }
     }
 }
-
 @Composable
 @Preview(showBackground = true)
-fun AppJumpCardHeader(){
+fun AppJumpCardHeader() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -413,7 +444,10 @@ fun AppJumpCardHeader(){
         Column(Modifier.padding(4.dp)) {
             AppDisplayPhoto(
                 size = 60.dp,
-                image = BitmapFactory.decodeResource(LocalContext.current.resources, R.drawable.skydiver).asImageBitmap(),
+                image = BitmapFactory.decodeResource(
+                    LocalContext.current.resources,
+                    R.drawable.skydiver
+                ).asImageBitmap(),
                 onClick = {},
             )
         }
@@ -421,10 +455,84 @@ fun AppJumpCardHeader(){
             verticalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.padding(start = 8.dp)
         ) {
-            Text(text =  "0listocks", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.h6)
+            Text(
+                text = "0listocks",
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.h6
+            )
             Text(text = "Skydive Langar . 11/04/2022")
         }
     }
+}
+@Composable
+@Preview(showBackground = true)
+fun AppDataPoint(
+    appIcon: AppIcon = AppIcon.AirPressure,
+    data: String = "data"
+) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colors.background)
+            .height(32.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.fillMaxWidth(0.5f)) {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(start = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                BasicIcon(list = listOf(appIcon))
+                Text(
+                    text = appIcon.title + ":",
+                    Modifier.padding(start = 8.dp),
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+
+        Column() {
+            Text(
+                text = data,
+                Modifier
+                    .fillMaxWidth()
+                    .padding(start = 8.dp)
+            )
+        }
+    }
+}
+@Composable
+@Preview(showBackground = true)
+fun AppDataPoint2(
+    appIcon: AppIcon = AppIcon.Longitude,
+    data: String = "data"
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(8.dp).fillMaxWidth()
+    ){
+        Column(
+            verticalArrangement = Arrangement.Center,
+        ) {
+            BasicIcon(list = listOf(appIcon))
+        }
+        Column(
+            modifier = Modifier.padding(start = 8.dp)
+        ) {
+                Text(
+                    text = appIcon.title + ":",
+                    fontWeight = FontWeight.Bold
+                )
+
+                Text(
+                    text = data,
+                    textAlign = TextAlign.Center,
+                )
+            }
+        }
+
 }
 
 

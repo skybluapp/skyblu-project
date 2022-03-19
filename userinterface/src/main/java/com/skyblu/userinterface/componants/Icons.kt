@@ -5,99 +5,156 @@ import com.skyblu.userinterface.R
 
 data class MenuAction(
     val onClick: () -> Unit,
-    val menuIcon: MenuIcon
+    val appIcon: AppIcon
 )
 
-sealed class BottomNavIcon(
+
+
+sealed class AppIcon(
     val title: String,
     @DrawableRes val icon : Int,
-    val route : String
+    val route : String = ""
 ){
-    object Home : BottomNavIcon(
+    object Home : AppIcon(
         title = "Home",
         icon = R.drawable.home,
         route = "home"
     )
-    object Profile : BottomNavIcon(
-        title = "Profile",
-        icon = R.drawable.person,
+    object Map : AppIcon(
+        title = "Map",
+        icon = R.drawable.map,
         route = "map"
     )
-}
+    object Profile : AppIcon(
+        title = "Profile",
+        icon = R.drawable.person,
+        route = "profile"
+    )
+    object Login : AppIcon(
+        title = "Login",
+        icon = R.drawable.login,
+        route = "login"
+    )
+    object Settings : AppIcon(
+        title = "Settings",
+        icon = R.drawable.settings,
+        route = "settings"
+    )
+    object TrackSkydive : AppIcon(
+        title = "Track Skydive",
+        icon = R.drawable.parachute,
+        route = "track"
+    )
+    object Awards : AppIcon(
+        title = "Awards",
+        icon = R.drawable.award,
+        route = "awards"
+    )
+    object CreateAccount : AppIcon(
+        title = "Create Account",
+        icon = R.drawable.add_circle,
+        route = "createAccount"
+    )
+    object Welcome : AppIcon(
+        title = "Welcome",
+        icon = R.drawable.wave,
+        route = "createAccount"
+    )
 
-sealed class MenuIcon(
-    val title : String,
-    @DrawableRes val icon: Int,
-    ) {
-    object Add : MenuIcon("Add" ,
+
+    object Add : AppIcon("Add" ,
         R.drawable.add)
-    object AddPhoto : MenuIcon("Add Photo" ,
+    object AddPhoto : AppIcon("Add Photo" ,
         R.drawable.add_photo)
-    object AirPressure : MenuIcon("Air Pressure" ,
+    object AirPressure : AppIcon("Air Pressure" ,
         R.drawable.air)
-    object Award : MenuIcon("Awards" ,
+    object GroundAirPressure : AppIcon("Base Air Pressure" ,
+        R.drawable.air)
+    object Award : AppIcon("Awards" ,
         R.drawable.award)
-    object Ground : MenuIcon("Ground" ,
+    object Ground : AppIcon("Ground" ,
         R.drawable.bottom)
-    object Time : MenuIcon("Time" ,
+    object Time : AppIcon("Time Elapsed" ,
         R.drawable.clock)
-    object Edit : MenuIcon("Edit" ,
+    object Edit : AppIcon("Edit" ,
         R.drawable.edit)
-    object Email : MenuIcon("Email" ,
+    object Email : AppIcon("Email" ,
         R.drawable.email)
-    object Group : MenuIcon("Group" ,
+    object Group : AppIcon("Group" ,
         R.drawable.group)
-    object Height : MenuIcon("Height" ,
+    object Altitude : AppIcon("Altitude" ,
         R.drawable.height)
-    object Help : MenuIcon("Help" ,
+    object BaseAltitude : AppIcon("Base Altitude" ,
+        R.drawable.height)
+    object Help : AppIcon("Help" ,
         R.drawable.help)
-    object Info : MenuIcon("Info" ,
+    object Info : AppIcon("Info" ,
         R.drawable.info)
-    object Key : MenuIcon("Key" ,
+    object Key : AppIcon("Key" ,
         R.drawable.key)
-    object Location : MenuIcon("Location" ,
+    object Location : AppIcon("Location" ,
         R.drawable.location)
-    object LocationNotTracking : MenuIcon("Not Tracking" ,
+    object LocationNotTracking : AppIcon("Not Tracking" ,
         R.drawable.location_not_tracking)
-    object LocationTracking : MenuIcon("Tracking" ,
+    object LocationTracking : AppIcon("Tracking" ,
         R.drawable.location_tracking)
-    object More : MenuIcon("More" ,
+    object More : AppIcon("More" ,
         R.drawable.more)
-    object Next : MenuIcon("Next" ,
+    object Next : AppIcon("Next" ,
         R.drawable.next)
-    object Parachute : MenuIcon("Parachute" ,
+    object Parachute : AppIcon("Parachute" ,
         R.drawable.parachute)
-    object Password : MenuIcon("Password" ,
+    object Password : AppIcon("Password" ,
         R.drawable.password)
-    object Person : MenuIcon("Person" ,
+    object Person : AppIcon("Person" ,
         R.drawable.person)
-    object Photo : MenuIcon("Photo" ,
+    object Photo : AppIcon("Photo" ,
         R.drawable.photo)
-    object Plane : MenuIcon("Aircraft" ,
-        R.drawable.plane)
-    object Previous : MenuIcon("Previous" ,
+    object Plane : AppIcon("Aircraft" ,
+        R.drawable.blue_plane)
+    object Previous : AppIcon("Previous" ,
         R.drawable.previous)
-    object Save : MenuIcon("Save" ,
+    object Save : AppIcon("Save" ,
         R.drawable.save)
-    object Send : MenuIcon("Send" ,
+    object Send : AppIcon("Send" ,
         R.drawable.send)
-    object Sensor : MenuIcon("Sensor" ,
+    object Sensor : AppIcon("Sensor" ,
         R.drawable.sensor)
-    object Share : MenuIcon("Share" ,
+    object Share : AppIcon("Share" ,
         R.drawable.share)
-    object Star : MenuIcon("Star" ,
+    object Star : AppIcon("Star" ,
         R.drawable.star)
-    object Tag : MenuIcon("Tag" ,
+    object Tag : AppIcon("Tag" ,
         R.drawable.tag)
-    object Up : MenuIcon("Up" ,
+    object Up : AppIcon("Up" ,
         R.drawable.up)
-    object Logout : MenuIcon("Logout" ,
+    object Logout : AppIcon("Logout" ,
         R.drawable.logout)
-    object Login : MenuIcon("Login" ,
-        R.drawable.login)
-    object Home : MenuIcon("Home" ,
-        R.drawable.home)
-    object Close : MenuIcon( "Close",
+    object Close : AppIcon( "Close",
         R.drawable.close
+    )
+    object Latitude : AppIcon( "Latitude",
+        R.drawable.latitude
+    )
+    object Longitude : AppIcon( "Longitude",
+        R.drawable.longitude
+    )
+    object PointsAccepted : AppIcon( "Points Accepted",
+        R.drawable.location_tracking
+    )
+    object PointsRejectd : AppIcon( "Points Rejected",
+        R.drawable.location_not_tracking
+    )
+    object PointsTotal : AppIcon( "Points Total",
+        R.drawable.number
+    )
+    object JumpStatus : AppIcon( "Jump Status",
+        R.drawable.help
+    )
+    object TotalDistance : AppIcon( "Total Distance",
+        R.drawable.map
+    )
+    object SectorDistance : AppIcon( "Sector Distance",
+        R.drawable.map
     )
 }

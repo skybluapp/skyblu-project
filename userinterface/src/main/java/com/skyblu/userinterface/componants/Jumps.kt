@@ -13,13 +13,16 @@ import com.skyblu.models.jump.generateSampleJump
 
 @Preview
 @Composable
-fun JumpCard(jump: Jump = generateSampleJump()){
+fun JumpCard(
+    jump: Jump = generateSampleJump(),
+    onMapClick : () -> Unit = {}
+){
     Column {
         AppJumpCardHeader()
         Box(modifier = Modifier
             .height(350.dp)
             .fillMaxWidth()){
-            StaticGoogleMap()
+            StaticGoogleMap(jump = jump, onClick = { onMapClick() })
         }
 
     }
