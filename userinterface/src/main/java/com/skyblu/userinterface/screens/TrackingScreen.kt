@@ -38,7 +38,7 @@ fun TrackingScreen(
                 Box(
                     Modifier
                         .fillMaxWidth()
-                        .height(300.dp)
+                        .height(310.dp)
                 ) {
                     val cameraPositionState: CameraPositionState = rememberCameraPositionState()
                     if (trackingdata.walkingTrackingPoints.isNotEmpty()) {
