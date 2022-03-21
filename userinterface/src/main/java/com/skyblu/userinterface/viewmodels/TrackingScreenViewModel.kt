@@ -56,6 +56,7 @@ class TrackingScreenViewModel : ViewModel() {
 
     fun receiveTrackingPoint(trackingPoint: TrackingPoint) {
 
+
         // Increase total location point tally
         pointsTotal.value++
         var accept = false
@@ -74,6 +75,8 @@ class TrackingScreenViewModel : ViewModel() {
 
 
 
+
+
         //Calculate Pressure Difference and Distance Travelled
         val altitudeDifference = endAltitude - startAltitude // Positive if altitude increasing
         val pressureDifference = startPressure - endPressure
@@ -88,7 +91,7 @@ class TrackingScreenViewModel : ViewModel() {
             lastPressureEntry = trackingPoint.airPressure
             //lastLocationEntry = trackingPoint.location
             lastLatitudeEntry = trackingPoint.latitude
-            lastLatitudeEntry = trackingPoint.longitude
+            lastlongitudeEntry = trackingPoint.longitude
             lastAltitudeEntry = trackingPoint.altitude
             groundAirPressure.value = trackingPoint.airPressure
             baseAltitude.value = trackingPoint.altitude
@@ -127,6 +130,9 @@ class TrackingScreenViewModel : ViewModel() {
 
         //Accept or reject the new trackingPoint
         if (accept) {
+
+            Timber.d( "STLAT ${startLatitude} STLONG ${startLongitude} ENDLAT ${endLatitude} ENDLONG ${endLongitude}")
+            Timber.d("LATITUDE" + trackingPoint.latitude.toString() + "DISTANCE " + distance)
 
             //Increment Points Accepted
             pointsAccepted.value++

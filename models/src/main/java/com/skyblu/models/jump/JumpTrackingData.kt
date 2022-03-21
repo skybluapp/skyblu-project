@@ -18,7 +18,7 @@ data class JumpTrackingData(
     var canopyTrackingPoints : MutableList<TrackingPoint> = mutableListOf<TrackingPoint>(),
     var landedTrackingPoints : MutableList<TrackingPoint> = mutableListOf<TrackingPoint>(),
 ){
-    private fun allTrackingPoints(): List<TrackingPoint> {
+    fun allTrackingPoints(): List<TrackingPoint> {
         return walkingTrackingPoints + aircraftTrackingPoints + freefallTrackingPoints + canopyTrackingPoints + landedTrackingPoints
     }
     fun importantTrackingPoints(): List<TrackingPoint> {

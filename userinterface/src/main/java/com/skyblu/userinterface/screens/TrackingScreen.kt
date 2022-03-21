@@ -38,12 +38,12 @@ fun TrackingScreen(
                 Box(
                     Modifier
                         .fillMaxWidth()
-                        .height(100.dp)
+                        .height(300.dp)
                 ) {
                     val cameraPositionState: CameraPositionState = rememberCameraPositionState()
                     if (trackingdata.walkingTrackingPoints.isNotEmpty()) {
                         LaunchedEffect(
-                            key1 = trackingdata.walkingTrackingPoints.last(),
+                            key1 = trackingdata.allTrackingPoints(),
                             block = {
                                 if (!cameraPositionState.isMoving) {
                                     cameraPositionState.animate(
