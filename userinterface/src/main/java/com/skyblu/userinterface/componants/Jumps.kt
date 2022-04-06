@@ -8,21 +8,30 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.skyblu.models.jump.Jump
+import com.skyblu.models.jump.Skydive
+import com.skyblu.models.jump.Skydiver
 import com.skyblu.models.jump.generateSampleJump
+import timber.log.Timber
 
-@Preview
+
 @Composable
 fun JumpCard(
-    jump: Jump = generateSampleJump(),
-    onMapClick : () -> Unit = {}
+    skydive: Skydive = generateSampleJump(),
+    onMapClick : () -> Unit = {},
+    username : String = "Meep Moop",
+    skydiver : Skydiver = Skydiver()
 ){
+
+    Timber.d("ComposeJumpCard")
+
+    Timber.d("URL" + skydive.staticMapUrl)
+
     Column {
-        AppJumpCardHeader()
+        AppJumpCardHeader(skydive = skydive, username = username, skydiver = skydiver)
         Box(modifier = Modifier
             .height(350.dp)
             .fillMaxWidth()){
-            StaticGoogleMap(jump = jump, onClick = { onMapClick() })
+            StaticGoogleMap(skydive = skydive, onClick = { onMapClick() })
         }
 
     }

@@ -1,31 +1,46 @@
 package com.skyblu.userinterface.screens
 
-import android.util.Log
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.skyblu.userinterface.componants.*
-
+import com.skyblu.userinterface.viewmodels.MapViewModel
 
 @Composable
-fun MapScreen(navController: NavController){
+fun MapScreen(
+    navController: NavController,
+    skydiveID : String,
+    viewModel : MapViewModel = hiltViewModel(),
+){
+    val state = viewModel.state
 
-    val navIcon = AppIcon.Map
+    viewModel.setJump(skydiveID)
+
     Scaffold(
         topBar = {
 
             AppTopAppBar(
-                title = navIcon.title,
+                title = Concept.Map.title,
                 navigationIcon = {
                     MenuActionList(menuActions = listOf(
-                        MenuAction(onClick = { navController.navigate("home"){popUpTo("home"){inclusive = true} } }, AppIcon.Previous)
+                        ActionConcept(action = { navController.navigate("home"){popUpTo("home"){inclusive = true} } },
+                            concept = Concept.Previous
+                        )
                     ))
                 }
             )
 
         },
-        content = { JumpMap()}
+        content = {
+            if(!state.isLoading.value){
+                JumpMap(
+                    points = viewModel.state.datapoints,
+                    isLoading = state.isLoading.value
+                )
+            }
+
+        }
     )
 }
 

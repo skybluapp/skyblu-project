@@ -7,7 +7,7 @@ import com.skyblu.userinterface.componants.*
 
 @Composable()
 fun ProfileScreen(navController: NavController) {
-    val navIcon = AppIcon.Profile
+    val navIcon = Concept.Profile
     Scaffold(
         content = {},
         topBar = {
@@ -15,7 +15,7 @@ fun ProfileScreen(navController: NavController) {
                 title = navIcon.title,
                 actionIcons = {
                     MenuActionList(
-                        appIcon = listOf(AppIcon.Settings),
+                        appConcepts = listOf(Concept.Settings),
                         navController = navController
                     )
                 }

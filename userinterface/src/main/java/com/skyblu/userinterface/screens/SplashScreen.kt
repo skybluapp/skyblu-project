@@ -1,6 +1,5 @@
 package com.skyblu.uicomponants.componants
 
-import android.view.animation.OvershootInterpolator
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -11,10 +10,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.skyblu.userinterface.R
+import com.skyblu.userinterface.componants.Concept
 import com.skyblu.userinterface.ui.theme.ThemeBlueGradient
 import kotlinx.coroutines.delay
 import timber.log.Timber
@@ -24,9 +23,9 @@ fun SplashScreen(navController : NavController){
 
     LaunchedEffect(key1 = true) {
 
-        delay(1400)
-        Timber.d("sss")
-        navController.navigate("loggedIn")
+        delay(1000)
+        navController.navigate(Concept.LoggedIn.route){
+            popUpTo(Concept.LoggedIn.route){inclusive = true} }
     }
 
 

@@ -1,160 +1,338 @@
 package com.skyblu.userinterface.componants
 
 import androidx.annotation.DrawableRes
+import androidx.navigation.NavController
 import com.skyblu.userinterface.R
 
-data class MenuAction(
-    val onClick: () -> Unit,
-    val appIcon: AppIcon
-)
 
 
-
-sealed class AppIcon(
+/**
+ * Concepts are ideas that can link a title with an icon and an optional route. These can be useful to generate IconButtons or routes for navigation. Concepts can be combined eg 'Account Settings'
+ * @param title the name of the concept
+ * @param icon an icon to represent the concept
+ * @param route a route to a screen this concept would represent
+ */
+sealed class Concept(
     val title: String,
-    @DrawableRes val icon : Int,
-    val route : String = ""
-){
-    object Home : AppIcon(
+    @DrawableRes val icon: Int,
+    val route: String = ""
+) {
+
+    object Home : Concept(
         title = "Home",
         icon = R.drawable.home,
         route = "home"
     )
-    object Map : AppIcon(
+
+    object Splash : Concept(
+        title = "Splash",
+        icon = R.drawable.aircraft,
+        route = "splash"
+    )
+
+    object Map : Concept(
         title = "Map",
         icon = R.drawable.map,
         route = "map"
     )
-    object Profile : AppIcon(
+
+    object Refresh : Concept(
+        title = "Refresh",
+        icon = R.drawable.refresh,
+        route = "refresh"
+    )
+
+
+    object Mapping : Concept(
+        title = "Mapping",
+        icon = R.drawable.map,
+        route = "map"
+    )
+
+    object Account : Concept(
+        title = "Account",
+        icon = R.drawable.person,
+        route = "account"
+    )
+
+    object Profile : Concept(
         title = "Profile",
         icon = R.drawable.person,
         route = "profile"
     )
-    object Login : AppIcon(
+
+    object Login : Concept(
         title = "Login",
         icon = R.drawable.login,
         route = "login"
     )
-    object Settings : AppIcon(
+
+    object Settings : Concept(
         title = "Settings",
         icon = R.drawable.settings,
         route = "settings"
     )
-    object TrackSkydive : AppIcon(
+
+    object TrackSkydive : Concept(
         title = "Track Skydive",
         icon = R.drawable.parachute,
         route = "track"
     )
-    object Awards : AppIcon(
+
+    object Awards : Concept(
         title = "Awards",
         icon = R.drawable.award,
         route = "awards"
     )
-    object CreateAccount : AppIcon(
+
+    object CreateAccount : Concept(
         title = "Create Account",
         icon = R.drawable.add_circle,
         route = "createAccount"
     )
-    object Welcome : AppIcon(
+
+    object Welcome : Concept(
         title = "Welcome",
         icon = R.drawable.wave,
-        route = "createAccount"
+        route = "welcome"
     )
 
+    object LoggedIn : Concept(
+        title = "Logged In",
+        icon = R.drawable.person,
+        route = "logged_in"
+    )
 
-    object Add : AppIcon("Add" ,
-        R.drawable.add)
-    object AddPhoto : AppIcon("Add Photo" ,
-        R.drawable.add_photo)
-    object AirPressure : AppIcon("Air Pressure" ,
-        R.drawable.air)
-    object GroundAirPressure : AppIcon("Base Air Pressure" ,
-        R.drawable.air)
-    object Award : AppIcon("Awards" ,
-        R.drawable.award)
-    object Ground : AppIcon("Ground" ,
-        R.drawable.bottom)
-    object Time : AppIcon("Time Elapsed" ,
-        R.drawable.clock)
-    object Edit : AppIcon("Edit" ,
-        R.drawable.edit)
-    object Email : AppIcon("Email" ,
-        R.drawable.email)
-    object Group : AppIcon("Group" ,
-        R.drawable.group)
-    object Altitude : AppIcon("Altitude" ,
-        R.drawable.height)
-    object BaseAltitude : AppIcon("Base Altitude" ,
-        R.drawable.height)
-    object Help : AppIcon("Help" ,
-        R.drawable.help)
-    object Info : AppIcon("Info" ,
-        R.drawable.info)
-    object Key : AppIcon("Key" ,
-        R.drawable.key)
-    object Location : AppIcon("Location" ,
-        R.drawable.location)
-    object LocationNotTracking : AppIcon("Not Tracking" ,
-        R.drawable.location_not_tracking)
-    object LocationTracking : AppIcon("Tracking" ,
-        R.drawable.location_tracking)
-    object More : AppIcon("More" ,
-        R.drawable.more)
-    object Next : AppIcon("Next" ,
-        R.drawable.next)
-    object Parachute : AppIcon("Parachute" ,
-        R.drawable.parachute)
-    object Password : AppIcon("Password" ,
-        R.drawable.password)
-    object Person : AppIcon("Person" ,
-        R.drawable.person)
-    object Photo : AppIcon("Photo" ,
-        R.drawable.photo)
-    object Plane : AppIcon("Aircraft" ,
-        R.drawable.blue_plane)
-    object Previous : AppIcon("Previous" ,
-        R.drawable.previous)
-    object Save : AppIcon("Save" ,
-        R.drawable.save)
-    object Send : AppIcon("Send" ,
-        R.drawable.send)
-    object Sensor : AppIcon("Sensor" ,
-        R.drawable.sensor)
-    object Share : AppIcon("Share" ,
-        R.drawable.share)
-    object Star : AppIcon("Star" ,
-        R.drawable.star)
-    object Tag : AppIcon("Tag" ,
-        R.drawable.tag)
-    object Up : AppIcon("Up" ,
-        R.drawable.up)
-    object Logout : AppIcon("Logout" ,
-        R.drawable.logout)
-    object Close : AppIcon( "Close",
-        R.drawable.close
+    object LoggedOut : Concept(
+        title = "Logged Out",
+        icon = R.drawable.no_person,
+        route = "logged_out"
     )
-    object Latitude : AppIcon( "Latitude",
-        R.drawable.latitude
+
+    object Add : Concept(
+        "Add",
+        R.drawable.add
     )
-    object Longitude : AppIcon( "Longitude",
-        R.drawable.longitude
+
+    object AddPhoto : Concept(
+        "Add Photo",
+        R.drawable.add_photo
     )
-    object PointsAccepted : AppIcon( "Points Accepted",
-        R.drawable.location_tracking
+
+    object AirPressure : Concept(
+        "Air Pressure",
+        R.drawable.air
     )
-    object PointsRejectd : AppIcon( "Points Rejected",
-        R.drawable.location_not_tracking
+
+    object GroundAirPressure : Concept(
+        "Base Air Pressure",
+        R.drawable.air
     )
-    object PointsTotal : AppIcon( "Points Total",
-        R.drawable.number
+
+    object Award : Concept(
+        "Awards",
+        R.drawable.award
     )
-    object JumpStatus : AppIcon( "Jump Status",
+
+    object Ground : Concept(
+        "Ground",
+        R.drawable.bottom
+    )
+
+    object Time : Concept(
+        "Time Elapsed",
+        R.drawable.clock
+    )
+
+    object Edit : Concept(
+        "Edit",
+        R.drawable.edit
+    )
+
+    object Email : Concept(
+        "Email",
+        R.drawable.email
+    )
+
+    object Group : Concept(
+        "Group",
+        R.drawable.group
+    )
+
+    object Altitude : Concept(
+        "Altitude",
+        R.drawable.height
+    )
+
+    object BaseAltitude : Concept(
+        "Base Altitude",
+        R.drawable.height
+    )
+
+    object Help : Concept(
+        "Help",
         R.drawable.help
     )
-    object TotalDistance : AppIcon( "Total Distance",
+
+    object Info : Concept(
+        "Info",
+        R.drawable.info
+    )
+
+    object Key : Concept(
+        "Key",
+        R.drawable.key
+    )
+
+    object Location : Concept(
+        "Location",
+        R.drawable.location
+    )
+
+    object LocationNotTracking : Concept(
+        "Not Tracking",
+        R.drawable.location_not_tracking
+    )
+
+    object LocationTracking : Concept(
+        "Tracking",
+        R.drawable.location_tracking,
+        route = "tracking"
+    )
+
+    object More : Concept(
+        "More",
+        R.drawable.more
+    )
+
+    object Next : Concept(
+        "Next",
+        R.drawable.next
+    )
+
+    object Parachute : Concept(
+        "Parachute",
+        R.drawable.parachute
+    )
+
+    object Password : Concept(
+        "Password",
+        R.drawable.password
+    )
+
+    object Person : Concept(
+        "Person",
+        R.drawable.person
+    )
+
+    object Photo : Concept(
+        "Photo",
+        R.drawable.photo
+    )
+
+    object Plane : Concept(
+        "Aircraft",
+        R.drawable.blue_plane
+    )
+
+    object Previous : Concept(
+        "Previous",
+        R.drawable.previous
+    )
+
+    object Save : Concept(
+        "Save",
+        R.drawable.save
+    )
+
+    object Send : Concept(
+        "Send",
+        R.drawable.send
+    )
+
+    object Sensor : Concept(
+        "Sensor",
+        R.drawable.sensor
+    )
+
+    object Share : Concept(
+        "Share",
+        R.drawable.share
+    )
+
+    object Star : Concept(
+        "Star",
+        R.drawable.star
+    )
+
+    object Tag : Concept(
+        "Tag",
+        R.drawable.tag
+    )
+
+    object Up : Concept(
+        "Up",
+        R.drawable.up
+    )
+
+    object Logout : Concept(
+        "Logout",
+        R.drawable.logout
+    )
+
+    object Close : Concept(
+        "Close",
+        R.drawable.close
+    )
+
+    object Latitude : Concept(
+        "Latitude",
+        R.drawable.latitude
+    )
+
+    object Longitude : Concept(
+        "Longitude",
+        R.drawable.longitude
+    )
+
+    object PointsAccepted : Concept(
+        "Points Accepted",
+        R.drawable.location_tracking
+    )
+
+    object PointsRejectd : Concept(
+        "Points Rejected",
+        R.drawable.location_not_tracking
+    )
+
+    object PointsTotal : Concept(
+        "Points Total",
+        R.drawable.number
+    )
+
+    object JumpStatus : Concept(
+        "Jump Status",
+        R.drawable.help
+    )
+
+    object TotalDistance : Concept(
+        "Total Distance",
         R.drawable.map
     )
-    object SectorDistance : AppIcon( "Sector Distance",
+
+    object SectorDistance : Concept(
+        "Sector Distance",
         R.drawable.map
     )
 }
+
+/**
+ * Connects a concept to an action
+ * @param concept a related icon, title and optional route
+ * @param action a action connected to the concept
+ * @see Concept
+ */
+data class ActionConcept(
+    val concept: Concept,
+    val action: () -> Unit,
+    )

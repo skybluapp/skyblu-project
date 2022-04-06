@@ -1,55 +1,52 @@
 package com.skyblu.models.jump
 
 import androidx.room.Embedded
-import androidx.room.Entity
-import androidx.room.PrimaryKey
 import androidx.room.Relation
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import timber.log.Timber
 
-//@Entity
+
 data class JumpTrackingData(
-    @PrimaryKey
-    val jumpTrackingDataId : String,
-    var walkingTrackingPoints : MutableList<TrackingPoint> = mutableListOf<TrackingPoint>(),
-    var aircraftTrackingPoints : MutableList<TrackingPoint> = mutableListOf<TrackingPoint>(),
-    var freefallTrackingPoints : MutableList<TrackingPoint> = mutableListOf<TrackingPoint>(),
-    var canopyTrackingPoints : MutableList<TrackingPoint> = mutableListOf<TrackingPoint>(),
-    var landedTrackingPoints : MutableList<TrackingPoint> = mutableListOf<TrackingPoint>(),
+    val jumpId : String,
+    var walkingTrackingPoints : MutableList<SkydiveDataPoint> = mutableListOf<SkydiveDataPoint>(),
+    var aircraftTrackingPoints : MutableList<SkydiveDataPoint> = mutableListOf<SkydiveDataPoint>(),
+    var freefallTrackingPoints : MutableList<SkydiveDataPoint> = mutableListOf<SkydiveDataPoint>(),
+    var canopyTrackingPoints : MutableList<SkydiveDataPoint> = mutableListOf<SkydiveDataPoint>(),
+    var landedTrackingPoints : MutableList<SkydiveDataPoint> = mutableListOf<SkydiveDataPoint>(),
 ){
-    fun allTrackingPoints(): List<TrackingPoint> {
+    fun allTrackingPoints(): List<SkydiveDataPoint> {
         return walkingTrackingPoints + aircraftTrackingPoints + freefallTrackingPoints + canopyTrackingPoints + landedTrackingPoints
     }
-    fun importantTrackingPoints(): List<TrackingPoint> {
+    fun importantTrackingPoints(): List<SkydiveDataPoint> {
         return walkingTrackingPoints + aircraftTrackingPoints + freefallTrackingPoints + canopyTrackingPoints + landedTrackingPoints
     }
-    fun getMinPressure(list : List<TrackingPoint>) : Float {
+    fun getMinPressure(list : List<SkydiveDataPoint>) : Float {
         return list.minOf { it.airPressure }
     }
     fun getMinPressure() : Float {
         return allTrackingPoints().minOf { it.airPressure }
     }
-    fun getMaxPressure(list : List<TrackingPoint>) : Float {
+    fun getMaxPressure(list : List<SkydiveDataPoint>) : Float {
         return list.maxOf { it.airPressure }
     }
     fun getMaxPressure() : Float {
         return allTrackingPoints().maxOf { it.airPressure }
     }
-    private fun getMinLatitude(list : List<TrackingPoint>) : Double {
+    private fun getMinLatitude(list : List<SkydiveDataPoint>) : Double {
         Timber.d("Size ${list.size}")
         return list.minOf { it.latitude }
     }
-    private fun getMaxLatitude(list : List<TrackingPoint>) : Double {
+    private fun getMaxLatitude(list : List<SkydiveDataPoint>) : Double {
         return list.maxOf { it.latitude }
     }
-    private fun getMinLongitude(list : List<TrackingPoint>) : Double {
+    private fun getMinLongitude(list : List<SkydiveDataPoint>) : Double {
         return list.minOf { it.longitude }
     }
-    private fun getMaxLongitude(list : List<TrackingPoint>) : Double {
+    private fun getMaxLongitude(list : List<SkydiveDataPoint>) : Double {
         return list.maxOf { it.longitude }
     }
-    fun getCenterPoint(list: List<TrackingPoint>) : LatLng{
+    fun getCenterPoint(list: List<SkydiveDataPoint>) : LatLng{
         var latTotal = 0.0
         var lngTotal = 0.0
         for (i in list.indices){
@@ -72,9 +69,14 @@ data class JumpTrackingData(
         return LatLng(maxLat, maxLong)
     }
     fun getCameraBounds() : LatLngBounds {
-        return LatLngBounds(getSouthwestCameraPoint(), getNorthEastCameraPoint())
+        if(importantTrackingPoints().isNotEmpty()){
+            return LatLngBounds(getSouthwestCameraPoint(), getNorthEastCameraPoint())
+        } else {
+            return LatLngBounds(LatLng(0.0, 0.0), LatLng(0.0, 0.0))
+        }
+
     }
-    fun createLatLngList(list : List<TrackingPoint>) : List<LatLng>{
+    fun createLatLngList(list : List<SkydiveDataPoint>) : List<LatLng>{
         val latLngList : MutableList<LatLng> = mutableListOf()
         for(i in list.indices){
 
@@ -82,7 +84,7 @@ data class JumpTrackingData(
         }
         return latLngList
     }
-    fun getLastTrackingPoint() : TrackingPoint?{
+    fun getLastTrackingPoint() : SkydiveDataPoint?{
         if(landedTrackingPoints.isNotEmpty()){
             return landedTrackingPoints.last()
         }
@@ -100,13 +102,8 @@ data class JumpTrackingData(
         }
         return null
     }
-    fun getFirstTrackingPoint() : TrackingPoint? {
-        if (walkingTrackingPoints.isNotEmpty()) {
-            return walkingTrackingPoints.first()
-        } else {
-            return null
-        }
+    fun getFirstTrackingPoint() : SkydiveDataPoint? {
+            return walkingTrackingPoints.firstOrNull()
     }
 }
-
 
