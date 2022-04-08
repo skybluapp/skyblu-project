@@ -1,5 +1,8 @@
 package com.skyblu.utilities
 
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.util.*
 import kotlin.math.pow
 
 
@@ -18,5 +21,10 @@ fun Float.metersToFeet() : Float{
     return (this * 3.28084).toFloat()
 }
 
+fun Long.millisToDateString() : String {
+    val date = Date(this)
+    val dateFormat: DateFormat = SimpleDateFormat("dd-MM-yy")
+    return dateFormat.format(date)
+}
 
 

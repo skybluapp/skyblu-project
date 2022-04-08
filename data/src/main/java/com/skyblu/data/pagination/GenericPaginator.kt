@@ -22,6 +22,7 @@ class GenericPaginator<DocumentSnapshot, Item>(
 
     override suspend fun loadNextItems() {
         if(isMakingRequest){
+            Timber.d("Home Request already in progress!")
             return
         }
         isMakingRequest = true

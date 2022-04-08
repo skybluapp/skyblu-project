@@ -5,23 +5,96 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
-class DataStoreRepository @Inject constructor(
-    val readWriteDatastore: ReadWriteDatastore
-) :
+interface DatastoreInterface{
+    fun readIntFromDatastore(
+        key: Preferences.Key<Int>,
+        viewModel: ViewModel,
+        defaultValue : Int = 0,
+        onRead : (Int) -> Unit
+    )
+    fun writeIntToDataStore(
+        key : Preferences.Key<Int>,
+        data : Int,
+        viewModel: ViewModel,
+    )
+    fun readStringFromDatastore(
+        key: Preferences.Key<String>,
+        viewModel: ViewModel,
+        defaultValue : Int = 0,
+        onRead : (String) -> Unit
+    )
+    fun writeStringToDatastore(
+        key : Preferences.Key<String>,
+        data : String,
+        viewModel: ViewModel,
+    )
+}
 
-    DatastoreInterface{
-    override suspend fun readAircraftCertaintyKey(): Int {
-//        var aircraftCertainty = 5
-//        readWriteDatastore.read(AIRCRAFT_CERTAINTY_KEY, 5).collect { aircraftCertainty = it }
-//        return aircraftCertainty
-        return 5
+class DataStoreRepository @Inject constructor(
+    private val readWriteDatastore: ReadWriteDatastore
+) : DatastoreInterface {
+
+
+    override fun readIntFromDatastore(
+        key: Preferences.Key<Int>,
+        viewModel: ViewModel,
+        defaultValue : Int,
+        onRead : (Int) -> Unit
+    ) {
+        viewModel.viewModelScope.launch {
+            readWriteDatastore.read(
+                key,
+                0
+            ).collect {
+                onRead(it)
+            }
+        }
     }
+
+    override fun writeIntToDataStore(
+        key : Preferences.Key<Int>,
+        data : Int,
+        viewModel: ViewModel,
+    ){
+        viewModel.viewModelScope.launch {
+            readWriteDatastore.write(data, key)
+        }
+
+    }
+
+    override fun readStringFromDatastore(
+        key: Preferences.Key<String>,
+        viewModel: ViewModel,
+        defaultValue : Int,
+        onRead : (String) -> Unit
+    ) {
+        viewModel.viewModelScope.launch {
+            readWriteDatastore.read(
+                key,
+                ""
+            ).collect {
+                onRead(it)
+            }
+        }
+    }
+
+    override fun writeStringToDatastore(
+        key : Preferences.Key<String>,
+        data : String,
+        viewModel: ViewModel,
+    ){
+        viewModel.viewModelScope.launch {
+            readWriteDatastore.write(data, key)
+        }
+
+    }
+
+
 }
 
 
@@ -30,30 +103,35 @@ class DataStoreRepository @Inject constructor(
 
 
 
-fun <T> ViewModel.readFromDatastore(
-    mutable: MutableStateFlow<RequestState<T>>,
-    key: Preferences.Key<String>,
-    default: String,
-    mapping: (String) -> T,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+fun ViewModel.writeToDatastore(
+    key: Preferences.Key<Int>,
+    int: Int,
     dataStoreRepository: ReadWriteDatastore
 ) {
-    mutable.value = RequestState.Loading
-    try {
-        viewModelScope.launch {
-            dataStoreRepository.read(
-                key,
-                default
-            )
-                .map { mapping(it) }
-                .collect {
-                    mutable.value = RequestState.Success(it)
-                }
-        }
-    } catch (e: Exception) {
-        mutable.value = RequestState.Error(e)
+    viewModelScope.launch(Dispatchers.IO) {
+        dataStoreRepository.write(
+            int,
+            key
+        )
     }
 }
-
 
 fun <T> ViewModel.readFromDatastore(
     mutable: MutableStateFlow<RequestState<T>>,
@@ -95,15 +173,5 @@ fun ViewModel.writeToDatastore(
     }
 }
 
-fun ViewModel.writeToDatastore(
-    key: Preferences.Key<Int>,
-    int: Int,
-    dataStoreRepository: ReadWriteDatastore
-) {
-    viewModelScope.launch(Dispatchers.IO) {
-        dataStoreRepository.write(
-            int,
-            key
-        )
-    }
-}
+
+

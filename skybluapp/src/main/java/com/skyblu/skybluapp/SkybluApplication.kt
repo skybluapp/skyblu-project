@@ -5,7 +5,11 @@ import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 
-
+/**
+ * Application class for Skyblu App
+ * Used for Hilt and Timber Logging
+ *  * @author Oliver Stocks
+ */
 @HiltAndroidApp
 class SkybluApplication : Application() {
     override fun onCreate() {

@@ -251,16 +251,16 @@ val pressureList: List<Float> = listOf<Float>(
     1010f
 )
 
-fun generateSampleJump(): Skydive {
-    return Skydive(
+fun generateSampleJump(): Jump {
+    return Jump(
         title = "Generated Jump",
         aircraft = "Cessna 201B",
         equipment = "Sabre 2",
         dropzone = "Skydive Langar",
-        skydiverID = "",
-        skydiveNumber = 100,
+        userID = "",
+        jumpNumber = 100,
         description = "A nice peaceful skydive",
-        skydiveID = UUID.randomUUID().toString(),
+        jumpID = UUID.randomUUID().toString(),
         uploaded = true
     )
 }
@@ -286,7 +286,7 @@ fun generateSampleTrackingData(): JumpTrackingData {
             timeStamp = System.currentTimeMillis(),
             verticalSpeed = 0f,
             groundSpeed = 0f,
-            skydiveID = "5"
+            jumpID = "5"
         )
         when (i) {
             in 0 .. 36 -> {
@@ -323,7 +323,7 @@ fun generateSampleTrackingData(): JumpTrackingData {
     )
 }
 
-fun generateSampleJumpList(): List<Skydive> {
+fun generateSampleJumpList(): List<Jump> {
     return listOf(
         generateSampleJump(),
         generateSampleJump(),

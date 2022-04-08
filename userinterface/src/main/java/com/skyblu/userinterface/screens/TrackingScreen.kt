@@ -1,31 +1,41 @@
 package com.skyblu.userinterface.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.ExtendedFloatingActionButton
-import androidx.compose.material.Icon
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.skyblu.configuration.*
 import com.skyblu.models.jump.bounds
 import com.skyblu.models.jump.newest
 import com.skyblu.models.jump.oldest
 import com.skyblu.userinterface.R
 import com.skyblu.userinterface.componants.*
+import com.skyblu.userinterface.componants.ActionConcept
+import com.skyblu.userinterface.componants.data.AppDataPoint2
+import com.skyblu.userinterface.componants.input.ActionConceptList
+import com.skyblu.userinterface.componants.input.AppTextField
+import com.skyblu.userinterface.componants.scaffold.AppTopAppBar
+import com.skyblu.userinterface.ui.theme.ThemeBlueGradient
 import com.skyblu.userinterface.viewmodels.TrackingScreenViewModel
 import com.skyblu.userinterface.viewmodels.TrackingStatus
+import com.skyblu.utilities.metersToFeet
+import kotlin.math.roundToInt
 
 @Composable
 fun TrackingScreen(
@@ -40,7 +50,7 @@ fun TrackingScreen(
         AppTopAppBar(
             title = viewModel.state.allPoints.value.size.toString(),
             navigationIcon = {
-                MenuActionList(
+                ActionConceptList(
                     menuActions = listOf(
                         ActionConcept(
                             action = {
@@ -64,7 +74,7 @@ fun TrackingScreen(
         AppTopAppBar(
             title = navIcon.title,
             navigationIcon = {
-                MenuActionList(
+                ActionConceptList(
                     menuActions = listOf(
                         ActionConcept(
                             action = {
@@ -76,12 +86,12 @@ fun TrackingScreen(
                 )
             },
             actionIcons = {
-                MenuActionList(
+                ActionConceptList(
                     menuActions = listOf(
                         ActionConcept(
                             action = {
                                 viewModel.queueJump()
-                                navController.navigate("home")
+                                navController.navigate(Concept.Home.route)
                             },
                             concept = Concept.Save
                         )
@@ -101,7 +111,9 @@ fun TrackingScreen(
                     painterResource(id = R.drawable.blue_plane),
                     contentDescription = ""
                 )
-            }
+            },
+            backgroundColor = MaterialTheme.colors.background,
+            contentColor = MaterialTheme.colors.onBackground
         )
     }
 
@@ -136,13 +148,17 @@ fun TrackingScreen(
                         key1 = points.newest(),
                         block = {
                             if (!cameraPositionState.isMoving) {
-                                cameraPositionState.animate(
+                                points.bounds()?.let {
                                     CameraUpdateFactory
                                         .newLatLngBounds(
-                                            points.bounds(),
+                                            it,
                                             5
-                                        ),
-                                )
+                                        )
+                                }?.let {
+                                    cameraPositionState.animate(
+                                        it,
+                                    )
+                                }
                             }
                         }
                     )
@@ -211,6 +227,8 @@ fun TrackingScreen(
         }
     }
 
+
+
     @Composable
     fun TrackingCompleteContent() {
         val focusManager = LocalFocusManager.current
@@ -218,47 +236,47 @@ fun TrackingScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(4.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
+                .padding(SMALL_PADDING),
+            verticalArrangement = Arrangement.spacedBy(SMALL_PADDING),
         ) {
             AppTextField(
-                value = state.jumpTitle.value,
-                onValueChanged = { state.jumpTitle.value = it },
+                value = state.title.value,
+                onValueChanged = { state.title.value = it },
                 imeAction = ImeAction.Next,
                 onIme = { focusManager.moveFocus(FocusDirection.Down) },
-                placeholder = "Jump Title",
+                placeholder = TITLE_STRING,
                 leadingIcon = R.drawable.number
             )
             AppTextField(
-                value = state.jumpDropzone.value,
-                onValueChanged = { state.jumpDropzone.value = it },
+                value = state.dropzone.value,
+                onValueChanged = { state.dropzone.value = it },
                 imeAction = ImeAction.Next,
                 onIme = { focusManager.moveFocus(FocusDirection.Down) },
-                placeholder = "Dropzone",
+                placeholder = DROPZONE_STRING,
                 leadingIcon = R.drawable.location
             )
             AppTextField(
-                value = state.jumpAircraft.value,
-                onValueChanged = { state.jumpAircraft.value = it },
+                value = state.aircraft.value,
+                onValueChanged = { state.aircraft.value = it },
                 imeAction = ImeAction.Next,
                 onIme = { focusManager.moveFocus(FocusDirection.Down) },
-                placeholder = "Aircraft",
+                placeholder = AIRCRAFT_STRING,
                 leadingIcon = R.drawable.aircraft
             )
             AppTextField(
-                value = state.jumpEquipment.value,
-                onValueChanged = { state.jumpEquipment.value = it },
+                value = state.equipment.value,
+                onValueChanged = { state.equipment.value = it },
                 imeAction = ImeAction.Next,
                 onIme = { focusManager.moveFocus(FocusDirection.Down) },
-                placeholder = "Equipment",
+                placeholder = EQUIPMENT_STRING,
                 leadingIcon = R.drawable.parachute
             )
             AppTextField(
-                value = state.jumpDescription.value,
-                onValueChanged = { state.jumpDescription.value = it },
+                value = state.description.value,
+                onValueChanged = { state.dropzone.value = it },
                 imeAction = ImeAction.Next,
                 onIme = { focusManager.moveFocus(FocusDirection.Down) },
-                placeholder = "Description",
+                placeholder = DESCRIPTION_STRING,
                 leadingIcon = R.drawable.edit
             )
         }
@@ -270,7 +288,7 @@ fun TrackingScreen(
             if (viewModel.trackingStatus.value == TrackingStatus.TRACKING_COMPLETE) {
                 TrackingCompleteContent()
             } else {
-                TrackingContent()
+                ChiilledOutTrackingContent(viewModel.state.allPoints.value.lastOrNull()?.altitude)
             }
         },
         topBar = {
@@ -290,8 +308,39 @@ fun TrackingScreen(
                 }
                 else -> {}
             }
-        }
+        },
+        floatingActionButtonPosition = FabPosition.Center,
+        isFloatingActionButtonDocked = false
     )
 }
+
+@Preview
+@Composable
+fun ChiilledOutTrackingContent(
+    altitude : Float? = 4000f
+){
+    val typography = MaterialTheme.typography
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(brush = ThemeBlueGradient),
+        contentAlignment = Alignment.Center
+    ){
+        if(altitude != null){
+            Text(
+                text = altitude.metersToFeet().roundToInt().toString() +" ft",
+                fontWeight = FontWeight.Bold,
+                style = typography.h1
+            )
+        }
+
+
+    }
+}
+
+
+
+
+
 
 

@@ -50,6 +50,7 @@ dependencies {
 
     //Utilities
     implementation(project(":utilities"))
+    implementation(project(":configuration"))
 
     //Room
     implementation("androidx.room:room-runtime:2.4.2")

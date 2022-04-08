@@ -25,9 +25,15 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.skyblu.data.storage.StorageInterface
+import com.skyblu.configuration.Concept
+import com.skyblu.configuration.LARGE_PADDING
+import com.skyblu.configuration.USERNAME_STRING
 import com.skyblu.userinterface.R
 import com.skyblu.userinterface.componants.*
+import com.skyblu.userinterface.componants.input.ActionConceptList
+import com.skyblu.userinterface.componants.input.AppTextField
+import com.skyblu.userinterface.componants.photos.AppDisplayPhoto
+import com.skyblu.userinterface.componants.scaffold.AppTopAppBar
 import com.skyblu.userinterface.viewmodels.AccountSettingsViewModel
 
 @Composable()
@@ -86,9 +92,9 @@ fun AccountSettingsScreen(
     Scaffold(
         content = {
             Column(
-                Modifier.fillMaxSize().padding(12.dp),
+                Modifier.fillMaxSize().padding(LARGE_PADDING),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(LARGE_PADDING)
 
             ) {
 
@@ -107,7 +113,7 @@ fun AccountSettingsScreen(
                             .data(state.photoUrl)
                             .crossfade(true)
                             .build(),
-                        contentDescription = "barcode image",
+                        contentDescription = "",
                         contentScale = ContentScale.FillBounds,
                         modifier = Modifier
                             .size(150.dp).clip(CircleShape)
@@ -118,7 +124,7 @@ fun AccountSettingsScreen(
                 AppTextField(
                     value = state.username.value,
                     onValueChanged = {state.username.value = it},
-                    placeholder = "Username",
+                    placeholder = USERNAME_STRING,
                     leadingIcon = R.drawable.person
                 )
                 AppTextField(
@@ -134,12 +140,12 @@ fun AccountSettingsScreen(
             AppTopAppBar(
                 title = "Account Settings",
                 navigationIcon = {
-                    MenuActionList(
+                    ActionConceptList(
                         menuActions = listOf(
                             ActionConcept(
                                 action = {
-                                    navController.navigate("settings") {
-                                        popUpTo("settings") {
+                                    navController.navigate(Concept.Settings.route) {
+                                        popUpTo(Concept.Settings.route) {
                                             inclusive = true
                                         }
                                     }
@@ -150,7 +156,7 @@ fun AccountSettingsScreen(
                     )
                 },
                 actionIcons = {
-                    MenuActionList(
+                    ActionConceptList(
                         menuActions = listOf(
                             ActionConcept(
                                 action = { save() },

@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.navigation.NavHostController
 import androidx.room.Room
@@ -12,12 +11,13 @@ import com.skyblu.data.authentication.FirebaseAuthentication
 import com.skyblu.data.authentication.AuthenticationInterface
 import com.skyblu.data.datastore.DataStoreRepository
 import com.skyblu.data.datastore.DatastoreInterface
-import com.skyblu.data.firestore.FireStore
-import com.skyblu.data.firestore.ServerInterface
+import com.skyblu.data.firestore.*
 import com.skyblu.data.room.AppDatabase
 import com.skyblu.data.room.TrackingPointsDao
 import com.skyblu.data.storage.FirebaseStorage
 import com.skyblu.data.storage.StorageInterface
+import com.skyblu.data.users.SavedSkydives
+import com.skyblu.data.users.SavedSkydivesInterface
 import com.skyblu.data.users.SavedUsers
 import com.skyblu.data.users.SavedUsersInterface
 import com.skyblu.jumptracker.service.ClientToService
@@ -30,7 +30,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ActivityScoped
 import dagger.hilt.components.SingletonComponent
 import pub.devrel.easypermissions.EasyPermissions
-import pub.devrel.easypermissions.PermissionRequest
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -47,7 +46,7 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideDatastore(@ApplicationContext appContext: Context): DataStore<Preferences> {
+    fun provideDatastore(@ApplicationContext appContext: Context): DataStore<androidx.datastore.preferences.core.Preferences> {
         return appContext.dataStore
     }
 
@@ -91,26 +90,38 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideAuthentication() : FirebaseAuthentication{
+    fun provideAuthentication(): FirebaseAuthentication {
         return FirebaseAuthentication()
     }
 
     @Singleton
     @Provides
-    fun provideFirestore() : FireStore{
-        return FireStore()
+    fun provideFirestoreWrite(): FirestoreWrite {
+        return FirestoreWrite()
     }
 
     @Singleton
     @Provides
-    fun provideStorage() : FirebaseStorage{
+    fun provideFirestoreRead(): FireStoreRead {
+        return FireStoreRead()
+    }
+
+    @Singleton
+    @Provides
+    fun provideStorage(): FirebaseStorage {
         return FirebaseStorage()
     }
 
     @Singleton
     @Provides
-    fun provideSavedUsers(authentication : AuthenticationInterface) : SavedUsers{
+    fun provideSavedUsers(authentication: AuthenticationInterface): SavedUsers {
         return SavedUsers(authentication)
+    }
+
+    @Singleton
+    @Provides
+    fun provideSavedSkydive(): SavedSkydives {
+        return SavedSkydives()
     }
 }
 
@@ -124,7 +135,11 @@ abstract class AppBindings {
 
     @Singleton
     @Binds
-    abstract fun firestoreInterface(fireStore: FireStore): ServerInterface
+    abstract fun readServerInterface(fireStore: FireStoreRead): ReadServerInterface
+
+    @Singleton
+    @Binds
+    abstract fun writeServerInterface(fireStore: FirestoreWrite): WriteServerInterface
 
     @Singleton
     @Binds
@@ -141,6 +156,10 @@ abstract class AppBindings {
     @Singleton
     @Binds
     abstract fun savedUsers(savedUsers : SavedUsers) : SavedUsersInterface
+
+    @Singleton
+    @Binds
+    abstract fun savedSkydive(savedSkydives: SavedSkydives) : SavedSkydivesInterface
 
 }
 
@@ -183,7 +202,7 @@ class PermissionsInterfaceImpl(private val activity: Activity) : PermissionsInte
 
     override fun requestPermission(vararg permissions: String) {
         EasyPermissions.requestPermissions(
-            PermissionRequest.Builder(
+            pub.devrel.easypermissions.PermissionRequest.Builder(
                 activity,
                 1,
                 *permissions

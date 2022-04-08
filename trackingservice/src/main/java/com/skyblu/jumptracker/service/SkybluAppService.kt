@@ -26,7 +26,7 @@ class SkybluAppService @Inject constructor(
     private val context: Context,
 ) : ClientToService {
 
-    lateinit var trackingService: TrackingService
+    lateinit var trackingService: TrackingServiceImproved
     var isTrackingServiceBound: Boolean = false
     private var onRecieveTrackingPoint: (SkydiveDataPoint) -> Unit = {}
 
@@ -81,7 +81,7 @@ class SkybluAppService @Inject constructor(
         }
     }
     override fun getGroundAltitude(): Float? {
-        return trackingService.baseAltitude
+        return trackingService.startAltitude
     }
 
     override fun startTrackingService() {

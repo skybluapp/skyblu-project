@@ -8,7 +8,7 @@ import java.util.*
  * Name of table for skydives for Room databases
  *@author Oliver Stocks
  */
-const val SKYDIVE_TABLE = "skydive_table"
+const val JUMP_TABLE = "skydive_table"
 
 /**
  * Contains default data for a skydive
@@ -21,20 +21,24 @@ object SkydiveDefaults{
     const val defaultAircraft = "Unknown Aircraft"
     const val defaultEquipment = "Unknown Equipment"
     const val defaultDropzone = "Unknown Dropzone"
-    const val defaultDescription = ""
+    const val defaultDescription = "WaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffle" +
+            "WaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffleWaffle" +
+            ""
     const val defaultUploaded = false
     val currentDate = System.currentTimeMillis()
     val newSkydiveID = UUID.randomUUID().toString()
 
 }
 
+private val s = SkydiveDefaults.defaultDropzone
+
 /**
  * Creates an instance of a Skydive data object
  * @author Oliver Stocks
- * @property skydiveID A unique identifier for the skydive
+ * @property jumpID A unique identifier for the skydive
  * @property title A title for the skydive
- * @property skydiverID A unique identifier for the skydiver
- * @property skydiveNumber The number of skydives the user has done
+ * @property userID A unique identifier for the user
+ * @property jumpNumber The number of skydives the user has done
  * @property date The date the skydive took place
  * @property aircraft The type of aircraft used on the skydive
  * @property equipment The type of canopy used on the skydive
@@ -42,13 +46,13 @@ object SkydiveDefaults{
  * @property uploaded Has the skydive been uploaded to the server?
  * @property staticMapUrl A URL to collect a static map representing the skydive
  */
-@Entity(tableName = SKYDIVE_TABLE)
+@Entity(tableName = JUMP_TABLE)
 @Serializable
-data class Skydive(
+data class Jump(
     @PrimaryKey
-    var skydiveID : String = SkydiveDefaults.newSkydiveID,
-    var skydiverID : String,
-    var skydiveNumber : Int = SkydiveDefaults.defaultJumpNumber,
+    var jumpID : String = SkydiveDefaults.newSkydiveID,
+    var userID : String,
+    var jumpNumber : Int = SkydiveDefaults.defaultJumpNumber,
     var date : Long = SkydiveDefaults.currentDate,
     var title : String = SkydiveDefaults.defaultTitle,
     var aircraft : String = SkydiveDefaults.defaultAircraft,
@@ -62,11 +66,11 @@ data class Skydive(
 /**
  * A One-to-Many relationship between datapoints and skydives
  */
-data class SkydiveWithDatapoints(
-    @Embedded val skydive : Skydive,
+data class JumpWithDatapoints(
+    @Embedded val jump : Jump,
     @Relation(
-        parentColumn = "skydiveID",
-        entityColumn = "skydiveID"
+        parentColumn = "jumpID",
+        entityColumn = "jumpID"
     )
     val datapoints: List<SkydiveDataPoint>
 )
@@ -74,10 +78,11 @@ data class SkydiveWithDatapoints(
 /**
  * Parameter names for a skydive
  */
-object SkydiveParameterNames{
-    const val SKYDIVE_ID = "skydiveID"
-    const val SKYDIVER_ID = "skydiverID"
-    const val SKYDIVE_NUMBER = "skydiveNumber"
+object JumpParams{
+    const val JUMP = "jump"
+    const val JUMP_ID = "jumpID"
+    const val USER_ID = "userID"
+    const val JUMP_NUMBER = "jumpNumber"
     const val DATE = "date"
     const val EQUIPMENT = "equipment"
     const val DROPZONE = "dropzone"

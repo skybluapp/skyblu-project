@@ -6,20 +6,24 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.skyblu.models.jump.Skydive
-import com.skyblu.models.jump.Skydiver
+import com.skyblu.models.jump.Jump
+import com.skyblu.models.jump.User
 import com.skyblu.models.jump.generateSampleJump
+import com.skyblu.userinterface.componants.cards.AppJumpCardHeader
+import com.skyblu.userinterface.screens.skydiveContent
 import timber.log.Timber
 
 
 @Composable
 fun JumpCard(
-    skydive: Skydive = generateSampleJump(),
+    skydive: Jump = generateSampleJump(),
     onMapClick : () -> Unit = {},
     username : String = "Meep Moop",
-    skydiver : Skydiver = Skydiver()
+    user : User = User(),
+    isMine : Boolean,
+    onEditClicked : () -> Unit,
+    onProfileClicked : () -> Unit
 ){
 
     Timber.d("ComposeJumpCard")
@@ -27,12 +31,13 @@ fun JumpCard(
     Timber.d("URL" + skydive.staticMapUrl)
 
     Column {
-        AppJumpCardHeader(skydive = skydive, username = username, skydiver = skydiver)
+        AppJumpCardHeader(skydive = skydive, username = username, user = user, isMine, onEditClicked = {onEditClicked()}, onProfileClicked = {onProfileClicked()})
         Box(modifier = Modifier
             .height(350.dp)
             .fillMaxWidth()){
             StaticGoogleMap(skydive = skydive, onClick = { onMapClick() })
         }
+        skydiveContent(skydive = skydive, clip = true)
 
     }
 }

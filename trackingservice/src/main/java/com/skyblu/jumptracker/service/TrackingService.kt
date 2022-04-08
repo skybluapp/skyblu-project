@@ -76,7 +76,7 @@ class TrackingService : Service(), SensorEventListener  {
     //Holds starting values of altitude and pressure
     var baseAltitude: Float? = null
     private var basePressure: Float? = null
-    private var skydiveID = UUID.randomUUID().toString()
+    private var jumpID = UUID.randomUUID().toString()
 
     var currentPoint : SkydiveDataPoint? = null
 
@@ -116,7 +116,7 @@ class TrackingService : Service(), SensorEventListener  {
     //Runs once client is bound to service
     override fun onBind(intent: Intent?): IBinder {
         Timber.d("TrackService Bound")
-        skydiveID = UUID.randomUUID().toString()
+        jumpID = UUID.randomUUID().toString()
         requestLocationUpdates()
         requestPressureUpdates()
         isPaused = false
@@ -257,7 +257,7 @@ class TrackingService : Service(), SensorEventListener  {
                             groundSpeed = recentLocation.speed,
                             verticalSpeed = altitudeChangePerSecond,
                             phase = currentPhase,
-                            skydiveID = skydiveID
+                            jumpID = jumpID
                         )
 
                         trackingServiceCallbacks.postSkydiveDataPoint(currentPoint!!)

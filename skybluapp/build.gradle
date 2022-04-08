@@ -51,10 +51,7 @@ android {
     }
 }
 
-
-
 dependencies {
-
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation 'com.google.android.material:material:1.5.0'
@@ -114,15 +111,9 @@ dependencies {
         // optional - RxJava3 support
         implementation("androidx.datastore:datastore-preferences-rxjava3:1.0.0")
 
-
-
-
         //Hilt
         implementation("com.google.dagger:hilt-android:2.38.1")
         kapt("com.google.dagger:hilt-android-compiler:2.38.1")
         implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
-
-
-
     }
 }

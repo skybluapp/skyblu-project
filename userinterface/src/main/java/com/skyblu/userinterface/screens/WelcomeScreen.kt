@@ -18,8 +18,16 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.skyblu.configuration.*
 import com.skyblu.userinterface.R
 import com.skyblu.userinterface.componants.*
+import com.skyblu.userinterface.componants.ActionConcept
+import com.skyblu.userinterface.componants.alerts.StyledBanner
+import com.skyblu.userinterface.componants.input.ActionConceptList
+import com.skyblu.userinterface.componants.input.AppButton
+import com.skyblu.userinterface.componants.input.AppTextButton
+import com.skyblu.userinterface.componants.input.AppTextField
+import com.skyblu.userinterface.componants.scaffold.AppTopAppBar
 import com.skyblu.userinterface.ui.theme.ThemeBlueGradient
 import com.skyblu.userinterface.viewmodels.CreateAccountViewModel
 import com.skyblu.userinterface.viewmodels.LoginViewModel
@@ -54,7 +62,7 @@ fun WelcomeScreen(
             Text(
                 text = "Welcome to ${context.getString(R.string.app_name)}",
                 style = MaterialTheme.typography.h3,
-                modifier = Modifier.padding(12.dp),
+                modifier = Modifier.padding(LARGE_PADDING),
                 fontWeight = FontWeight.Bold,
 
             )
@@ -63,7 +71,7 @@ fun WelcomeScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = 12.dp)
+                    .padding(bottom = LARGE_PADDING)
             ) {
 
                 AppButton(
@@ -114,7 +122,7 @@ fun LoginScreen(
             AppTopAppBar(
                 title = Concept.Login.title,
                 navigationIcon = {
-                    MenuActionList(
+                    ActionConceptList(
                         menuActions = listOf(
                             ActionConcept(
                                 action = {
@@ -130,7 +138,7 @@ fun LoginScreen(
                     )
                 },
                 actionIcons = {
-                    MenuActionList(
+                    ActionConceptList(
                         menuActions = listOf(
                             ActionConcept(
                                 action = { viewModel.login() },
@@ -177,7 +185,7 @@ fun CreateAccountScreen(
             AppTopAppBar(
                 title = Concept.CreateAccount.title,
                 navigationIcon = {
-                    MenuActionList(
+                    ActionConceptList(
                         menuActions = listOf(
                             ActionConcept(
                                 action = {
@@ -193,7 +201,7 @@ fun CreateAccountScreen(
                     )
                 },
                 actionIcons = {
-                    MenuActionList(
+                    ActionConceptList(
                         menuActions = listOf(
                             ActionConcept(
                                 action = { viewModel.createAccount() },
@@ -224,7 +232,7 @@ fun LoginContent(
 ){
     Column(Modifier.fillMaxSize()) {
         if(!errorMessage.isNullOrBlank()){
-            AppBanner(
+            StyledBanner(
                 text = errorMessage,
                 actionConcept = ActionConcept(Concept.Close) { onCloseError() },
                 color = MaterialTheme.colors.error
@@ -234,16 +242,16 @@ fun LoginContent(
         Column(
             Modifier
                 .fillMaxSize()
-                .padding(4.dp)
-                .padding(top = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+                .padding(SMALL_PADDING)
+                .padding(top = MEDIUM_PADDING),
+            verticalArrangement = Arrangement.spacedBy(SMALL_PADDING)
         ) {
             AppTextField(
                 value = username,
                 onValueChanged = {s -> onUsernameChanged(s)},
                 imeAction = ImeAction.Next,
                 leadingIcon = R.drawable.email,
-                placeholder = "Email"
+                placeholder = EMAIL_STRING
             )
             AppTextField(
                 value = password,
@@ -274,7 +282,7 @@ fun CreateAccountContent(
     
     Column(Modifier.fillMaxSize()) {
         if(!errorMessage.isNullOrBlank()){
-            AppBanner(
+            StyledBanner(
                 text = errorMessage,
                 actionConcept = ActionConcept(Concept.Close) { onCloseError() },
                 color = MaterialTheme.colors.error
@@ -283,9 +291,9 @@ fun CreateAccountContent(
         Column(
             Modifier
                 .fillMaxSize()
-                .padding(4.dp)
-                .padding(top = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+                .padding(SMALL_PADDING)
+                .padding(top = MEDIUM_PADDING),
+            verticalArrangement = Arrangement.spacedBy(SMALL_PADDING)
         ) {
 
 
@@ -295,7 +303,7 @@ fun CreateAccountContent(
                 onValueChanged = {s -> onEmailChanged(s)},
                 imeAction = ImeAction.Next,
                 leadingIcon = R.drawable.email,
-                placeholder = "Email"
+                placeholder = EMAIL_STRING
             )
             AppTextField(
                 value = password,

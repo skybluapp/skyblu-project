@@ -1,11 +1,7 @@
-package com.skyblu.userinterface.componants
+package com.skyblu.userinterface.componants.input
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -13,10 +9,8 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.autofill.AutofillType
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -25,6 +19,17 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.skyblu.userinterface.R
+
+
+
+
+object AppTextFieldDefaults {
+    val borderWidth = 2.dp
+    val height = TextFieldDefaults.MinHeight
+}
+
+
+
 
 @Composable
 fun textFieldColors(): TextFieldColors {
@@ -98,7 +103,9 @@ fun AppTextField(
             ).clip(RoundedCornerShape(10.dp)),
 
         keyboardActions = keyboardActions,
-        visualTransformation = if(keyboardType == KeyboardType.Password){PasswordVisualTransformation()} else {
+        visualTransformation = if(keyboardType == KeyboardType.Password){
+            PasswordVisualTransformation()
+        } else {
             VisualTransformation.None}
     )
 }

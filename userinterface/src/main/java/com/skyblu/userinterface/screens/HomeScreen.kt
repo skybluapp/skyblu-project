@@ -1,110 +1,105 @@
 package com.skyblu.userinterface.screens
 
 import android.app.Activity
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.FabPosition
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.skyblu.models.jump.Skydive
-import com.skyblu.models.jump.Skydiver
-import com.skyblu.models.jump.generateSampleJumpList
+import com.skyblu.configuration.Concept
+import com.skyblu.configuration.HOME_STRING
+import com.skyblu.configuration.UNKNOWN_USER_STRING
+import com.skyblu.models.jump.Jump
+import com.skyblu.models.jump.User
 import com.skyblu.userinterface.R
 import com.skyblu.userinterface.componants.*
+import com.skyblu.userinterface.componants.lists.PagingList
+import com.skyblu.userinterface.componants.scaffold.AppBottomAppBar
+import com.skyblu.userinterface.componants.scaffold.AppTopAppBar
 import com.skyblu.userinterface.viewmodels.HomeViewModel
-import timber.log.Timber
+import com.skyblu.userinterface.viewmodels.UniversalViewModel
 
-//LazyColumn(Modifier.fillMaxSize()) {
-//    items(state.items.size) { index ->
-//        val skydive = state.items[index]
-//        if (index >= state.items.size - 1 && !state.endReached && state.isLoading) {
-//            viewModel.loadNextItems()
-//        }
-//        JumpCard(
-//            skydive = skydive,
-//            onMapClick = { navController.navigate(Concept.Map.route + "/" + skydive.skydiveID) }
-//        )
-//    }
-//}
-@Preview
 @Composable
 fun HomeScreen(
-    list: List<Skydive> = generateSampleJumpList(),
     navController: NavController = rememberNavController(),
     viewModel: HomeViewModel = hiltViewModel(),
+    universalViewModel: UniversalViewModel
 ) {
 
-    val state = viewModel.state
+    val appState = universalViewModel.state
+    val screenState = viewModel.state
+    val savedUsers = universalViewModel.savedUsers.userMap
+
     val activity = LocalContext.current as Activity
-    val users = viewModel.savedUsers.skydiverMap
 
     LaunchedEffect(
-        key1 = viewModel.state.thisUser.value,
+        key1 = universalViewModel.state.thisUser.value,
         block = {
-            if (state.thisUser.value.isNullOrBlank()) {
+            if (appState.thisUser.value.isNullOrBlank()) {
                 navController.navigate(Concept.LoggedOut.route)
             }
         }
     )
 
 
-    val title : String = state.userMapping[state.thisUser.value]?.username ?: "???"
-
     Scaffold(
         content = {
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(viewModel.state.skydives.size) { index ->
-                    val skydive = viewModel.state.skydives[index]
-                    if(index >= viewModel.state.skydives.size - 1 && !state.endReached && !state.isLoading){
-                        viewModel.loadNextSkydivePage()
-                    }
-                    Timber.d(skydive.skydiverID)
-                    JumpCard(
-                        skydive = skydive,
-                        onMapClick = { navController.navigate(Concept.Map.route + "/" + skydive.skydiveID) },
-                        username = viewModel.state.userMapping[skydive.skydiverID]?.username ?: "unknown",
-                        skydiver =  viewModel.state.userMapping[skydive.skydiverID] ?: Skydiver()
-                    )
-                }
-            }
+                  PagingList<Jump>(
+                      Heading = {},
+                      list = screenState.skydives,
+                      endReached = screenState.endReached,
+                      isLoading = screenState.isLoading.value,
+                      loadNextPage = {viewModel.loadNextSkydivePage()},
+                      refresh = {
+                          screenState.isRefreshing.value = true
+                          viewModel.refresh()
+                                },
+                      swipeState = screenState.swipeRefreshState.value,
+                      Content = { skydive ->
+
+                          JumpCard(
+                              skydive = skydive,
+                              onMapClick = { navController.navigate(  "${Concept.Map.route}/${skydive.jumpID}"  ) },
+                              username = savedUsers[skydive.userID]?.username
+                                  ?: UNKNOWN_USER_STRING,
+                              user = savedUsers[skydive.userID] ?: User(),
+                              isMine = appState.thisUser.value == skydive.userID,
+                              onProfileClicked = {
+                                  navController.navigate(Concept.Profile.route + skydive.userID)
+
+                              },
+                              onEditClicked = {
+                                  viewModel.savedSkydives.skydive = skydive
+                                  navController.navigate(Concept.Edit.route)
+                              },
+                          )
+                      }
+                  )
         },
         topBar = {
             AppTopAppBar(
-                title = title,
-                navigationIcon = null,
-                actionIcons = {
-                    MenuActionList(
-                        menuActions = listOf(
-                            ActionConcept(
-                                action = { viewModel.refresh() },
-                                concept = Concept.Refresh
-                            )
-                        )
-                    )
-                }
+                title = HOME_STRING
             )
         },
         bottomBar = {
-            AppBottomAppBar(navController = navController)
+            appState.thisUser.value?.let {
+                AppBottomAppBar(navController = navController,
+                    it
+                )
+            }
         },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
                     if (viewModel.checkPermissions(activity)) {
-                        Timber.d("Permission Granted")
                         navController.navigate(Concept.TrackSkydive.route)
                     } else {
-                        Timber.d("Permission Not Granted")
                         viewModel.requestPermissions(activity)
                     }
                 },

@@ -5,9 +5,15 @@ import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.skyblu.configuration.Concept
+import com.skyblu.configuration.FT_UNIT_STRING
+import com.skyblu.configuration.M_UNIT_STRING
 import com.skyblu.userinterface.componants.*
+import com.skyblu.userinterface.componants.input.ActionConceptList
+import com.skyblu.userinterface.componants.input.AppSettingsRangeSlider
+import com.skyblu.userinterface.componants.input.AppSettingsSlider
+import com.skyblu.userinterface.componants.scaffold.AppTopAppBar
 import com.skyblu.userinterface.settingsviewmodels.TrackingSettingsVm
-import com.skyblu.userinterface.viewmodels.CreateAccountViewModel_Factory
 
 @Composable()
 fun TrackingSettingsScreen(
@@ -29,7 +35,7 @@ fun TrackingSettingsScreen(
                 AppSettingsSlider(
                     appConcepts = Concept.Plane,
                     title = "Aircraft Altitude Threshold",
-                    prepend = "ft",
+                    prepend = FT_UNIT_STRING,
                     value = viewModel.aircraftAltitudeThreshold.value.toFloat(),
                     onValueChanged = { viewModel.aircraftAltitudeThreshold.value = it },
                     range = 30f .. 1000f
@@ -67,7 +73,7 @@ fun TrackingSettingsScreen(
                     values = viewModel.canopyDetectionAltitude.value .. viewModel.freefallDetectionAltitude.value,
                     range = 800f .. 5000f,
                     title = "Freefall Range",
-                    prepend = "m",
+                    prepend = M_UNIT_STRING,
                     onValueChanged = { viewModel.canopyDetectionAltitude.value = it.start ; viewModel.freefallDetectionAltitude.value = it.endInclusive;}
                 )
 
@@ -79,12 +85,12 @@ fun TrackingSettingsScreen(
             AppTopAppBar(
                 title = "Tracking Settings",
                 navigationIcon = {
-                    MenuActionList(
+                    ActionConceptList(
                         menuActions = listOf(
                             ActionConcept(
                                 action = {
-                                    navController.navigate("settings") {
-                                        popUpTo("settings") {
+                                    navController.navigate(Concept.Settings.route) {
+                                        popUpTo(Concept.Settings.route){
                                             inclusive = true
                                         }
                                     }
@@ -95,7 +101,7 @@ fun TrackingSettingsScreen(
                     )
                 },
                 actionIcons = {
-                    MenuActionList(
+                    ActionConceptList(
                         menuActions = listOf(
                             ActionConcept(
                                 action = { save() },
@@ -107,7 +113,7 @@ fun TrackingSettingsScreen(
             )
         },
         bottomBar = {
-            AppBottomAppBar(navController = navController)
+
         }
     )
 }

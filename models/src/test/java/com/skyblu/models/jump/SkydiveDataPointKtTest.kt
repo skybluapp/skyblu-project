@@ -14,7 +14,7 @@ class SkydiveDataPointKtTest : TestCase() {
         Timber.plant(Timber.DebugTree())
     }
 
- 
+
 
     @AfterClass
     fun uproot(){

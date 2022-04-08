@@ -1,12 +1,16 @@
 package com.skyblu.data.users
 
-import androidx.compose.runtime.MutableState
-import com.skyblu.models.jump.Skydiver
+import com.skyblu.models.jump.Jump
+import com.skyblu.models.jump.User
 
 interface SavedUsersInterface {
-    val skydiverMap :  MutableMap<String, Skydiver>
-    fun containsSkydiver(skydiver : String) : Boolean
-    fun addSkydiver(skydiver : Skydiver)
+    val userMap :  MutableMap<String, User>
+    fun containsUser(user : String) : Boolean
+    fun addUser(user : User)
     fun clear()
-    fun thisSkydiver() : Skydiver?
+    fun thisUser() : User?
+}
+
+interface SavedSkydivesInterface {
+    var skydive : Jump?
 }

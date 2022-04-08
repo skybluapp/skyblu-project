@@ -58,7 +58,7 @@ class TrackingSettingsVm @Inject() constructor(
             onLoad = { aircraftAltitudeThreshold.value = it })
 
         viewModelScope.launch {
-            aircraftCertainty.value = dataStoreInterface.readAircraftCertaintyKey().toFloat()
+            aircraftCertainty.value = 5F
         }
 
 

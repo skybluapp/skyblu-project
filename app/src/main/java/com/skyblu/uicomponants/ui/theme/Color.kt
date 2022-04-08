@@ -9,9 +9,3 @@ val Purple700 = Color(0xFF3700B3)
 val Teal200 = Color(0xFF03DAC5)
 val Black = Color.Black
 
-val ThemeBlueOne = Color(0xFF3152FF)
-val ThemeBlueTwo = Color(0xFF00A8FF)
-
-val ThemeBlueGradient = Brush.verticalGradient(
-    listOf<Color>(ThemeBlueOne, ThemeBlueTwo)
-)

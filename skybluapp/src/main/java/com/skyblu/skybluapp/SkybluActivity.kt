@@ -8,10 +8,14 @@ import com.skyblu.userinterface.Navigation
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
+/**
+ * Skyblu App Activity
+ * Entry point for Hilt Components
+ * Sets Navigation as UI Content
+ */
 @AndroidEntryPoint
 class SkybluActivity @Inject constructor(
 ) : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -20,8 +24,6 @@ class SkybluActivity @Inject constructor(
             }
         }
     }
-
-
 }
 
 

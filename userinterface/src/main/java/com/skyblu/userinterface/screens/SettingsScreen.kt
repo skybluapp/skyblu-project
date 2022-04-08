@@ -6,11 +6,16 @@ import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.skyblu.configuration.Concept
 import com.skyblu.userinterface.componants.*
-import com.skyblu.userinterface.viewmodels.LoginViewModel
+import com.skyblu.userinterface.componants.input.ActionConceptList
+import com.skyblu.userinterface.componants.input.AppSettingsCategory
+import com.skyblu.userinterface.componants.scaffold.AppBottomAppBar
+import com.skyblu.userinterface.componants.scaffold.AppTopAppBar
 import com.skyblu.userinterface.viewmodels.SettingsViewModel
 import timber.log.Timber
 
@@ -20,9 +25,10 @@ val SETTINGS_LIST = listOf<Concept>(
     Concept.Mapping,
 )
 
+@Preview
 @Composable()
 fun SettingsScreen(
-    navController: NavController,
+    navController: NavController = rememberNavController(),
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     
@@ -32,7 +38,6 @@ fun SettingsScreen(
     LaunchedEffect(
         key1 = viewModel.loggedIn.value,
         block = {
-            Timber.d("Current User " + viewModel.currentUser())
             if(!viewModel.loggedIn.value){
                 navController.navigate(Concept.LoggedOut.route)
             }
@@ -52,12 +57,12 @@ fun SettingsScreen(
             AppTopAppBar(
                 title = settingsConcept.title,
                 navigationIcon = {
-                    MenuActionList(
+                    ActionConceptList(
                         menuActions = listOf(
                             ActionConcept(
                                 action = {
-                                    navController.navigate(Concept.Profile.route) {
-                                        popUpTo(Concept.Profile.route) {
+                                    navController.navigate(Concept.Home.route) {
+                                        popUpTo(Concept.Home.route) {
                                             inclusive = true
                                         }
                                     }
@@ -68,10 +73,10 @@ fun SettingsScreen(
                     )
                 },
                 actionIcons = {
-                    MenuActionList(
+                    ActionConceptList(
                         menuActions = listOf(
                             ActionConcept(
-                                action = { viewModel.logout(); Timber.d("LOGOUT") },
+                                action = { viewModel.logout()},
                                 concept = Concept.Logout
                             )
                         )
@@ -80,7 +85,7 @@ fun SettingsScreen(
             )
         },
         bottomBar = {
-            AppBottomAppBar(navController = navController)
+            viewModel.currentUser()?.let { AppBottomAppBar(navController = navController, userID = it) }
         }
     )
 }

@@ -1,9 +1,9 @@
 package com.skyblu.data.users
 
-import androidx.compose.animation.slideIn
 import androidx.compose.runtime.mutableStateMapOf
 import com.skyblu.data.authentication.AuthenticationInterface
-import com.skyblu.models.jump.Skydiver
+import com.skyblu.models.jump.Jump
+import com.skyblu.models.jump.User
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -11,22 +11,26 @@ class SavedUsers @Inject constructor(
     val authentication : AuthenticationInterface
 ) : SavedUsersInterface {
 
-    override val skydiverMap : MutableMap<String, Skydiver> = mutableStateMapOf()
+    override val userMap : MutableMap<String, User> = mutableStateMapOf()
 
-    override fun containsSkydiver(skydiver: String): Boolean {
-        return skydiverMap.containsKey(skydiver)
+    override fun containsUser(user: String): Boolean {
+        return userMap.containsKey(user)
     }
 
-    override fun addSkydiver(skydiver: Skydiver) {
-        Timber.d("Skydiver Added $skydiver")
-        skydiverMap[skydiver.skydiverID] = skydiver
+    override fun addUser(user: User) {
+        Timber.d("User Added $user")
+        userMap[user.ID] = user
     }
 
-    override fun thisSkydiver() : Skydiver?{
-        return skydiverMap[authentication.getCurrentUser()]
+    override fun thisUser() : User?{
+        return userMap[authentication.getCurrentUser()]
     }
 
     override fun clear() {
-        skydiverMap.clear()
+        userMap.clear()
     }
+}
+
+class SavedSkydives @Inject constructor() : SavedSkydivesInterface{
+    override var skydive : Jump? = null
 }

@@ -11,5 +11,5 @@
     <string name="route_logged_in">loggedIn</string>
     <string name="route_home">home</string>
     <string name="route_profile">profile</string>
-    <string name="skydive_ID">skydiveID</string>
+    <string name="skydive_ID">jumpID</string>
 </resources>

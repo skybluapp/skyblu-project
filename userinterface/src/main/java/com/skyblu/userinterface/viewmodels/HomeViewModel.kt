@@ -1,26 +1,31 @@
 package com.skyblu.userinterface.viewmodels
 
-import android.Manifest
 import android.app.Activity
 import android.content.Context
-import androidx.compose.runtime.*
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.accompanist.swiperefresh.SwipeRefreshState
 import com.google.firebase.firestore.DocumentSnapshot
+import com.skyblu.configuration.PERMISSIONS
 import com.skyblu.configuration.PermissionsInterfaceImpl
+import com.skyblu.configuration.JUMP_PAGE_SIZE
 import com.skyblu.data.authentication.AuthenticationInterface
-import com.skyblu.data.firestore.ServerInterface
+import com.skyblu.data.firestore.ReadServerInterface
+import com.skyblu.data.firestore.WriteServerInterface
+import com.skyblu.data.firestore.toSkydive
+import com.skyblu.data.firestore.toUser
 import com.skyblu.data.pagination.GenericPaginator
 import com.skyblu.data.room.TrackingPointsDao
+import com.skyblu.data.users.SavedSkydives
 import com.skyblu.data.users.SavedUsersInterface
-import com.skyblu.models.jump.Skydive
-import com.skyblu.models.jump.SkydiveParameterNames
-import com.skyblu.models.jump.Skydiver
-import com.skyblu.models.jump.SkydiverParameterNames
+import com.skyblu.models.jump.Jump
+import com.skyblu.models.jump.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -32,17 +37,15 @@ import javax.inject.Inject
  * @param error Contains a string if an error has occurred
  * @param endReached True if there is no more content to be loaded from the
  * @param page The document that acts as the key to access more content
- * @param userMapping A mapping between skydiverID's and usernames
  */
 data class HomeState(
-    val isLoading: Boolean = false,
-    var skydives: MutableList<Skydive> = mutableListOf(),
-    val error: String? = null,
+    var isLoading: MutableState<Boolean> = mutableStateOf(false),
+    var skydives: MutableList<Jump> = mutableListOf(),
+    var error: String? = null,
     var endReached: Boolean = false,
-    val page: DocumentSnapshot? = null,
-    var userMapping : MutableMap<String, Skydiver> = mutableStateMapOf<String, Skydiver>(),
-    val thisUser: MutableState<String?> = mutableStateOf("user"),
-
+    var page: DocumentSnapshot? = null,
+    val isRefreshing: MutableState<Boolean> = mutableStateOf(false),
+    val swipeRefreshState: MutableState<SwipeRefreshState> = mutableStateOf(SwipeRefreshState(isRefreshing = isRefreshing.value)),
 )
 
 /**
@@ -56,155 +59,112 @@ data class HomeState(
 class HomeViewModel @Inject constructor(
     private val room: TrackingPointsDao,
     private val authentication: AuthenticationInterface,
-    private val server: ServerInterface,
-    val savedUsers : SavedUsersInterface,
+    val readServer : ReadServerInterface,
+    val writeServer : WriteServerInterface,
+    private val savedUsers: SavedUsersInterface,
+    val savedSkydives: SavedSkydives,
     @ApplicationContext context: Context
 ) : ViewModel() {
 
-
-
+    /**
+     * Create new state
+     */
     var state by mutableStateOf(HomeState())
 
-
-
+    /**
+     * Pagination manages paged content for the Home Screen
+     */
     private val paginator = GenericPaginator(
         initialKey = state.page,
+        onRequest = { nextPage ->
+            readServer.getJumps(
+                nextPage,
+                JUMP_PAGE_SIZE
+            )
+        },
         onLoadUpdated = {
-            state = state.copy(isLoading = it)
+            state.isLoading.value = it
+        },
+        onSuccess = { list, newKey ->
+            state.page = newKey
+            state.endReached = list.documents.isEmpty()
+
+            Timber.d("Retrieved ${list.documents.size} Documents")
+            /**
+             * For each document received, convert it to a Skydive and add it to the list
+             */
+            for (document in list.documents) {
+                val skydive = document.toSkydive()
+                state.skydives.add(skydive)
+                Timber.d(state.skydives.size.toString())
+
+                /**
+                 * If the user has not been saved, get the user from the server and store their details
+                 */
+                if (!savedUsers.containsUser(skydive.userID)) {
+                    viewModelScope.launch {
+                        val result = readServer.getUser(skydive.userID)
+                        val user: User? = result.getOrNull()?.toUser()
+                        if (user != null) {
+                            Timber.d("User Collected $user")
+                            savedUsers.addUser(user = user)
+                        }
+                    }
+                }
+            }
+        },
+        onError = { error ->
+            Timber.d("Home Request error!")
+            if (error != null) {
+                state.error = error.message
+            }
         },
         getNextKey = { list ->
-            if (list.documents.isEmpty()) {
-                state.endReached = true
-                null
-            } else {
-                list.documents[list.size() - 1]
-            }
+            list.lastOrNull()
         },
-        onError = {
-            state = state.copy(error = it?.message)
-        },
-        onSuccess = { querySnapshot, newKey ->
-            state.copy(
-                page = newKey,
-                endReached = querySnapshot.documents.isEmpty()
-            )
-            for (skydive in querySnapshot.documents) {
-                val skydiverID = skydive[SkydiveParameterNames.SKYDIVER_ID].toString()
-                state.skydives.add(createSkydive(document = skydive))
-
-                if(!savedUsers.containsSkydiver(skydiverID)){
-
-                    viewModelScope.launch {
-                        val skydiverDocument = server.getSkydiverFromServer(skydiverID)
-                        val snapshot : DocumentSnapshot? = skydiverDocument.getOrNull()
-                        savedUsers.addSkydiver(createUser(snapshot))
-                    }
-                }
-
-                if(!state.userMapping.containsKey(skydiverID)){
-                    state.userMapping[skydiverID] = Skydiver()
-                    viewModelScope.launch {
-                        val skydiverDocument = server.getSkydiverFromServer(skydiverID)
-                        val snapshot : DocumentSnapshot? = skydiverDocument.getOrNull()
-                        state.userMapping[skydiverID] = createUser(snapshot)
-                    }
-                }
-            }
-        },
-        onRequest = { nextPage ->
-            server.getSkydivesFromServer(
-                nextPage,
-                3
-            )
-        }
     )
 
+    /**
+     * Load first page on initialisation
+     */
     init {
-        viewModelScope.launch {
-            authentication.loggedInFlow.collectLatest {
-                state.thisUser.value = it
-                if(it != null){
-                    val skydiverDocument = server.getSkydiverFromServer(it)
-                    val snapshot : DocumentSnapshot? = skydiverDocument.getOrNull()
-                    state.userMapping[it] = createUser(snapshot)
-                }
-
-            }
-        }
         viewModelScope.launch {
             paginator.loadNextItems()
         }
-        state.userMapping = savedUsers.skydiverMap
     }
 
-
+    /**
+     * Loads the next page
+     */
     fun loadNextSkydivePage() {
         viewModelScope.launch {
             paginator.loadNextItems()
         }
     }
 
+    /**
+     * Refreshes the list of skydives
+     */
     fun refresh() {
-        state = HomeState()
+        state.skydives.clear()
         paginator.reset()
-        savedUsers.clear()
-        viewModelScope.launch {
-            val currentUser = authentication.getCurrentUser()
-
-            if(currentUser != null){
-                val p = server.getSkydiverFromServer(currentUser)
-                delay(3000)
-                val snapshot = p.getOrNull()
-                val user = createUser(snapshot)
-                Timber.d("This User is" + currentUser + user.username)
-                savedUsers.addSkydiver(createUser(snapshot))
-            }
-        }
-        viewModelScope.launch { paginator.loadNextItems() }
+        loadNextSkydivePage()
     }
 
+    /**
+     * Checks if permissions have been granted
+     */
     fun checkPermissions(activity: Activity): Boolean {
         val permissionInterface = PermissionsInterfaceImpl(activity = activity)
-        return permissionInterface.checkPermissions(Manifest.permission.ACCESS_FINE_LOCATION)
+        return permissionInterface.checkPermissions(PERMISSIONS)
     }
 
+    /**
+     * Request location permissions for tracking skydives
+     */
     fun requestPermissions(activity: Activity) {
         val permissionInterface = PermissionsInterfaceImpl(activity = activity)
-        permissionInterface.requestPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-    }
-
-    private fun createSkydive(document : DocumentSnapshot) : Skydive{
-        return Skydive(
-            skydiveID = document[SkydiveParameterNames.SKYDIVE_ID].toString(),
-            date = document[SkydiveParameterNames.DATE].toString().toLong(),
-            description = document[SkydiveParameterNames.DESCRIPTION].toString(),
-            skydiveNumber = document[SkydiveParameterNames.SKYDIVE_NUMBER].toString().toInt(),
-            skydiverID = document[SkydiveParameterNames.SKYDIVER_ID].toString(),
-            staticMapUrl = document[SkydiveParameterNames.STATIC_MAP_URL].toString(),
-            uploaded = document[SkydiveParameterNames.UPLOADED].toString().toBoolean(),
-            title = document[SkydiveParameterNames.TITLE].toString(),
-            equipment = document[SkydiveParameterNames.EQUIPMENT].toString(),
-            dropzone = document[SkydiveParameterNames.DROPZONE].toString(),
-            aircraft = document[SkydiveParameterNames.AIRCRAFT].toString()
-        )
-    }
-
-
-    private fun createUser(document : DocumentSnapshot?) : Skydiver{
-        var s = Skydiver()
-
-        if(document == null){
-            return s
-        } else {
-             s = Skydiver(
-                skydiverID = document.id,
-                username = document[SkydiverParameterNames.USERNAME].toString(),
-                bio = document[SkydiverParameterNames.BIO].toString(),
-                skydiverPhotoUrl = document[SkydiverParameterNames.SKYDIVER_PHOTO_URL].toString()
-            )
-        }
-
-        return s
+        permissionInterface.requestPermission(PERMISSIONS)
     }
 }
 

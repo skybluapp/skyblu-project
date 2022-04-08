@@ -1,10 +1,14 @@
 package com.skyblu.models.jump
 
+import android.location.Location
+import androidx.annotation.DrawableRes
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import com.skyblu.configuration.AIRCRAFT_STRING
+import com.skyblu.models.R
 import kotlinx.serialization.Serializable
 import java.util.*
 import kotlin.math.absoluteValue
@@ -13,13 +17,13 @@ import kotlin.math.absoluteValue
  * Name of table for skydive data points for Room databases
  *@author Oliver Stocks
  */
-const val SKYDIVE_DATA_POINT_TABLE = "skydive_data_point_table"
+const val JUMP_DATA_POINT_TABLE = "jump_data_point_table"
 
 /**
  * A representation of a single point during a skydive
  * @author Oliver Stocks
  * @property dataPointID A unique identifier for the data point
- * @property skydiveID A unique identifier for the skydive
+ * @property jumpID A unique identifier for the skydive
  * @property latitude The latitude of the point
  * @property longitude The Longitude of the point
  * @property airPressure The Air Pressure of the current Point in hPa
@@ -30,11 +34,11 @@ const val SKYDIVE_DATA_POINT_TABLE = "skydive_data_point_table"
  * @property phase The current phase in the skydive
  */
 @Serializable
-@Entity(SKYDIVE_DATA_POINT_TABLE)
+@Entity(JUMP_DATA_POINT_TABLE)
 data class SkydiveDataPoint(
     @PrimaryKey
     val dataPointID: String,
-    val skydiveID: String,
+    val jumpID: String,
     var latitude: Double,
     var longitude: Double,
     var airPressure: Float,
@@ -48,9 +52,11 @@ data class SkydiveDataPoint(
 /**
  * Parameter names for a skydive datapoint
  */
-object DatapointParameters{
+object DatapointParams {
+
+    const val DATAPOINT = "datapoint"
     const val DATAPOINT_ID = "dataPointID"
-    const val SKYDIVE_ID = "skydiveID"
+    const val JUMP_ID = "jumpID"
     const val LATITUDE = "latitude"
     const val LONGITUDE = "longitude"
     const val AIR_PRESSURE = "airPressure"
@@ -61,35 +67,61 @@ object DatapointParameters{
     const val PHASE = "phase"
 }
 
-
 /**
  * The phase of a skydive
  */
-enum class SkydivePhase {
+enum class SkydivePhase(
+    val title: String,
+    @DrawableRes val icon: Int
+) {
+
     /**
-     * The skydiver has begun tracking, but is not yet in the aircraft
+     * The user has begun tracking, but is not yet in the aircraft
      */
-    WALKING,
+    WALKING(
+        "Walking",
+        R.drawable.walk
+    ),
+
     /**
-     * The skydiver is in the aircraft ascending to altitude
+     * The user is in the aircraft ascending to altitude
      */
-    AIRCRAFT,
+    AIRCRAFT(
+        AIRCRAFT_STRING,
+        R.drawable.aircraft
+    ),
+
     /**
-    The skydiver has exited the aircraft and is in freefall descending quickly
+    The user has exited the aircraft and is in freefall descending quickly
      **/
-    FREEFALL,
+    FREEFALL(
+        "Freefall",
+        R.drawable.freefall
+    ),
+
     /*
-    The skydiver has deployed their parachute and is descending slowly
+    The user has deployed their parachute and is descending slowly
      */
-    CANOPY,
+    CANOPY(
+        "Canopy",
+        R.drawable.parachute
+    ),
+
     /*
-    The skydiver has landed and is now longer descending
+    The user has landed and is now longer descending
      */
-    LANDED,
+    LANDED(
+        "Landed",
+        R.drawable.walk
+    ),
+
     /*
-    It is not known what phase of the skydive the skydiver is in
+    It is not known what phase of the skydive the user is in
      */
-    UNKNOWN
+    UNKNOWN(
+        "Unknown",
+        R.drawable.unknown
+    )
 }
 
 /**
@@ -119,18 +151,25 @@ class SkydiveDataPointConverters {
  * @return The maximum vertical speed of a list of Skydiving tracking points in a specified direction, or of either donation if direction is unspecified
  * @param direction The direction of maximum speed
  */
-fun List<SkydiveDataPoint>.maxVerticalSpeed(direction: VerticalDirection?): Float {
+fun List<SkydiveDataPoint>.maxVerticalSpeed(direction: VerticalDirection?): Float? {
     return when (direction) {
         VerticalDirection.DOWNWARD -> {
-            minOf { skydiveDataPoint: SkydiveDataPoint -> skydiveDataPoint.verticalSpeed  }
+            minOfOrNull { skydiveDataPoint: SkydiveDataPoint -> skydiveDataPoint.verticalSpeed }
         }
         VerticalDirection.UPWARD -> {
-            maxOf { skydiveDataPoint: SkydiveDataPoint -> skydiveDataPoint.verticalSpeed  }
+            maxOfOrNull { skydiveDataPoint: SkydiveDataPoint -> skydiveDataPoint.verticalSpeed }
         }
         null -> {
-            maxOf { skydiveDataPoint: SkydiveDataPoint -> skydiveDataPoint.verticalSpeed.absoluteValue  }
+            maxOf { skydiveDataPoint: SkydiveDataPoint -> skydiveDataPoint.verticalSpeed.absoluteValue }
         }
     }
+}
+
+fun List<SkydiveDataPoint>.averageVerticalSpeed(): Double {
+    return sumOf { skydiveDataPoint: SkydiveDataPoint -> skydiveDataPoint.verticalSpeed.toDouble() } / size.toDouble()
+}
+fun List<SkydiveDataPoint>.averageGroundSpeed(): Double {
+    return sumOf { skydiveDataPoint: SkydiveDataPoint -> skydiveDataPoint.groundSpeed.toDouble() } / size.toDouble()
 }
 
 /**
@@ -152,8 +191,9 @@ enum class VerticalDirection {
 /**
  * @return The maximum ground speed from a list of skydiving tracking points
  */
-fun List<SkydiveDataPoint>.maxGroundSpeed(): Float {
-    return maxOf { skydiveDataPoint -> skydiveDataPoint.groundSpeed }
+fun List<SkydiveDataPoint>.maxGroundSpeed(): Float? {
+
+    return maxOfOrNull { skydiveDataPoint -> skydiveDataPoint.groundSpeed }
 }
 
 /**
@@ -166,29 +206,29 @@ fun List<SkydiveDataPoint>.minGroundSpeed(): Float {
 /**
  * @return The maximum latitude from a list of skydiving tracking points
  */
-fun List<SkydiveDataPoint>.maxLatitude(): Double {
-    return maxOf { skydiveDataPoint -> skydiveDataPoint.latitude }
+fun List<SkydiveDataPoint>.maxLatitude(): Double? {
+    return maxOfOrNull { skydiveDataPoint -> skydiveDataPoint.latitude }
 }
 
 /**
  * @return The minimum latitude  from a list of skydiving tracking points
  */
-fun List<SkydiveDataPoint>.minLatitude(): Double {
-    return minOf { skydiveDataPoint -> skydiveDataPoint.latitude }
+fun List<SkydiveDataPoint>.minLatitude(): Double? {
+    return minOfOrNull { skydiveDataPoint -> skydiveDataPoint.latitude }
 }
 
 /**
  * @return The maximum longitude from a list of skydiving tracking points
  */
-fun List<SkydiveDataPoint>.maxLongitude(): Double {
-    return maxOf { skydiveDataPoint -> skydiveDataPoint.longitude }
+fun List<SkydiveDataPoint>.maxLongitude(): Double? {
+    return maxOfOrNull { skydiveDataPoint -> skydiveDataPoint.longitude }
 }
 
 /**
  * @return The minimum longitude  from a list of skydiving tracking points
  */
-fun List<SkydiveDataPoint>.minLongitude(): Double {
-    return minOf { skydiveDataPoint -> skydiveDataPoint.longitude }
+fun List<SkydiveDataPoint>.minLongitude(): Double? {
+    return minOfOrNull { skydiveDataPoint -> skydiveDataPoint.longitude }
 }
 
 /**
@@ -208,52 +248,101 @@ fun List<SkydiveDataPoint>.minAltitude(): Float {
 /**
  * @return Centre point of skydiving tracking points
  */
-fun List<SkydiveDataPoint>.centerPoint(): LatLng{
-    return LatLng( sumOf { point -> point.latitude } / size, sumOf { point -> point.longitude } / size)
+fun List<SkydiveDataPoint>.centerPoint(): LatLng {
+    return LatLng(sumOf { point -> point.latitude } / size,
+        sumOf { point -> point.longitude } / size)
 }
 
 /**
  * @return Get the most southeasterly point of a list of skydiving tracking points
  */
-fun List<SkydiveDataPoint>.southwest(): LatLng{
-    return LatLng( minLatitude(), minLongitude())
+fun List<SkydiveDataPoint>.southwest(): LatLng? {
+    return minLatitude()?.let {
+        minLongitude()?.let { it1 ->
+            LatLng(
+                it,
+                it1
+        )
+        }
+    }
 }
 
 /**
  * @return Get the most northwesterly point of a list of skydiving tracking points
  */
-fun List<SkydiveDataPoint>.northeast(): LatLng{
-    return LatLng( maxLatitude(), maxLongitude())
+fun List<SkydiveDataPoint>.northeast(): LatLng? {
+    return maxLatitude()?.let {
+        maxLongitude()?.let { it1 ->
+            LatLng(
+                it,
+                it1
+        )
+        }
+    }
 }
 
 /** @return Get bounds from a list of skydiving tracking points
  *
  */
-fun List<SkydiveDataPoint>.bounds(): LatLngBounds{
-    return LatLngBounds(southwest(), northeast())
+fun List<SkydiveDataPoint>.bounds(): LatLngBounds? {
+    return northeast()?.let {
+        southwest()?.let { it1 ->
+            LatLngBounds(
+                it1,
+                it
+        )
+        }
+    }
 }
 
 /**
  * @return Return a list of LatLng points from a list of skydiving tracking points
  */
-fun List<SkydiveDataPoint>.latLngList(): List<LatLng>{
-    val latLngList : MutableList<LatLng> = mutableListOf()
-    for(i in indices){
-        latLngList.add(LatLng(elementAt(i).latitude, elementAt(i).longitude))
+fun List<SkydiveDataPoint>.latLngList(): List<LatLng> {
+    val latLngList: MutableList<LatLng> = mutableListOf()
+    for (i in indices) {
+        latLngList.add(
+            LatLng(
+                elementAt(i).latitude,
+                elementAt(i).longitude
+            )
+        )
     }
     return latLngList
 }
 
-fun List<SkydiveDataPoint>.newest() : SkydiveDataPoint?{
+fun List<SkydiveDataPoint>.newest(): SkydiveDataPoint? {
     return maxByOrNull { it.timeStamp }
 }
 
-fun List<SkydiveDataPoint>.oldest() : SkydiveDataPoint?{
+fun List<SkydiveDataPoint>.oldest(): SkydiveDataPoint? {
     return minByOrNull { it.timeStamp }
 }
 
-fun List<SkydiveDataPoint>.filterByPhase(phase : SkydivePhase) : List<SkydiveDataPoint>{
+fun List<SkydiveDataPoint>.filterByPhase(phase: SkydivePhase): List<SkydiveDataPoint> {
     return filter { point -> point.phase == phase }.sortedBy { it.timeStamp }
+}
+
+fun List<SkydiveDataPoint>.calculateDistanceOfList() : Float{
+    var oneStartIndex = 0
+    var twoStartIndex = 1
+    var totalDistance = 0f
+
+    while(twoStartIndex <= indices.last){
+        val one = Location("LocationOne")
+        one.latitude = this[oneStartIndex].latitude
+        one.longitude = this[oneStartIndex].longitude
+        val two = Location("LocationTwo")
+        two.latitude = this[twoStartIndex].latitude
+        two.longitude = this[twoStartIndex].longitude
+        totalDistance += one.distanceTo(two)
+        oneStartIndex++
+        twoStartIndex++
+    }
+    return totalDistance
+
+
+
 }
 
 

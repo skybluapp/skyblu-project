@@ -2,7 +2,6 @@ package com.skyblu.userinterface.componants
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Paint
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,10 +19,10 @@ import coil.request.ImageRequest
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.*
 import com.google.maps.android.compose.*
+import com.skyblu.configuration.*
 import com.skyblu.models.jump.*
 import com.skyblu.userinterface.BuildConfig.GOOGLE_MAPS_API_KEY
 import com.skyblu.userinterface.R
-import com.skyblu.userinterface.ui.theme.ThemeBlueTwoAlpha
 import timber.log.Timber
 
 @Composable
@@ -36,7 +35,7 @@ fun JumpMap(
 
     Timber.d("LENGTH ${points.size}")
 
-    val cameraPadding = 5
+    val cameraPadding = 150
     val cameraPositionState : CameraPositionState = rememberCameraPositionState()
 
 
@@ -64,14 +63,38 @@ fun JumpMap(
 
         if(!isLoading){
             //Move Camera to Fit Bounds of Jump
-            cameraPositionState.move(CameraUpdateFactory.newLatLngBounds(points.bounds(), 350, 350, cameraPadding))
 
-            val walkingLine: List<LatLng> = points.filterByPhase(SkydivePhase.WALKING).latLngList()
-            val aircraftLine: List<LatLng> = points.filterByPhase(SkydivePhase.AIRCRAFT).latLngList()
-            val freefallLine: List<LatLng> = points.filterByPhase(SkydivePhase.FREEFALL).latLngList()
-            val canopyLine: List<LatLng> = points.filterByPhase(SkydivePhase.CANOPY).latLngList()
-            val landedLine: List<LatLng> = points.filterByPhase(SkydivePhase.FREEFALL).latLngList()
 
+                val al = points.filterByPhase(SkydivePhase.CANOPY).toMutableList()
+            val ff =  points.filterByPhase(SkydivePhase.FREEFALL).toMutableList()
+            val p = al + ff
+
+            val walkingLine: MutableList<LatLng> = points.filterByPhase(SkydivePhase.WALKING).latLngList().toMutableList()
+            val aircraftLine: MutableList<LatLng> = points.filterByPhase(SkydivePhase.AIRCRAFT).latLngList().toMutableList()
+
+            val freefallLine: MutableList<LatLng> = points.filterByPhase(SkydivePhase.FREEFALL).latLngList().toMutableList()
+            val canopyLine: MutableList<LatLng> = points.filterByPhase(SkydivePhase.CANOPY).latLngList().toMutableList()
+            val landedLine: MutableList<LatLng> = points.filterByPhase(SkydivePhase.FREEFALL).latLngList().toMutableList()
+
+
+
+            if(landedLine.isNotEmpty() && aircraftLine.isNotEmpty() && freefallLine.isNotEmpty()){
+                aircraftLine.firstOrNull()?.let { walkingLine.add(it) }
+                freefallLine.firstOrNull()?.let { aircraftLine.add(it) }
+                canopyLine.firstOrNull()?.let { freefallLine.add(it) }
+//            landedLine.firstOrNull()?.let { canopyLine.add(it) }
+            }
+
+
+
+            p.bounds()?.let { CameraUpdateFactory.newLatLngBounds(it,  cameraPadding) }
+                ?.let { cameraPositionState.move(it) }
+
+
+            CreatePolyLine(
+                settings = PolylineSettings.LandedPolyLineSettings,
+                points = landedLine
+            )
             CreatePolyLine(
                 settings = PolylineSettings.WalkingPolyLineSettings,
                 points = walkingLine
@@ -88,10 +111,7 @@ fun JumpMap(
                 settings = PolylineSettings.CanopyPolyLineSettings,
                 points = canopyLine
             )
-            CreatePolyLine(
-                settings = PolylineSettings.LandedPolyLineSettings,
-                points = landedLine
-            )
+
         }
 
 
@@ -137,7 +157,7 @@ fun LiveJumpMap(
 @Preview
 @Composable
 fun TrackMap(
-    skydive : Skydive = generateSampleJump(),
+    skydive : Jump = generateSampleJump(),
     trackingData: JumpTrackingData = generateSampleTrackingData()
 ){
     val trackingData = trackingData
@@ -192,6 +212,10 @@ fun TrackMap(
             settings = PolylineSettings.CanopyPolyLineSettings,
             points = canopyLine
         )
+        Marker(
+            position = canopyLine.last(),
+            icon = bitmapDescriptorFromVector(context = LocalContext.current, icon = R.drawable.parachute_cap),
+        )
         CreatePolyLine(
             settings = PolylineSettings.LandedPolyLineSettings,
             points = landedLine
@@ -203,15 +227,26 @@ fun TrackMap(
 sealed class PolylineSettings(
     val color: Color,
     val hex : String = "0xFF0000",
-    val width : Float = 5f,
+    val width : Float = 8f,
     val pattern : List<PatternItem>? = null,
     @DrawableRes val cap : Int? = null
 ) {
-    object WalkingPolyLineSettings : PolylineSettings(Color.Gray, hex = "0x808080FF" )
-    object AircraftPolyLineSettings : PolylineSettings(ThemeBlueTwoAlpha, cap = R.drawable.blue_plane, hex = "0x8000A8FF")
-    object FreefallPolyLineSettings : PolylineSettings(Color.Red, hex = "0xFF0000FF")
-    object CanopyPolyLineSettings : PolylineSettings(Color.Magenta, hex = "0xFFFF00FF",  cap = R.drawable.parachute)
-    object LandedPolyLineSettings : PolylineSettings(Color.Gray, hex =  "0x808080FF")
+    object WalkingPolyLineSettings : PolylineSettings(WALKING_COLOR, hex = "0x808080FF" )
+    object AircraftPolyLineSettings : PolylineSettings(AIRCRAFT_COLOR, cap = R.drawable.blue_plane, hex = "0xFF53E2F1")
+    object FreefallPolyLineSettings : PolylineSettings(FREEFALL_COLOR, hex = "0xFF2644FF")
+    object CanopyPolyLineSettings : PolylineSettings(CANOPY_COLOR, hex = "0xFFE64A19",  cap = ((R.drawable.parachute_cap)))
+    object LandedPolyLineSettings : PolylineSettings(LANDED_COLOR, hex =  "0xFF000000")
+}
+
+fun pathToString(trackingPoints : List<SkydiveDataPoint>, settings : PolylineSettings) : String {
+    val stringPrepend = "&path=color:${settings.hex}|weight:5"
+    var stringAppend = ""
+    for (trackingPoint in trackingPoints) {
+        val lat = trackingPoint.latitude
+        val long = trackingPoint.longitude
+        stringAppend += "|${lat},${long}"
+    }
+    return  stringPrepend + stringAppend
 }
 
 
@@ -219,10 +254,10 @@ sealed class PolylineSettings(
 private fun CreatePolyLine(settings : PolylineSettings, points : List<LatLng>) : Unit{
     var pCap : Cap = ButtCap()
     if(settings.cap != null){
-        val bitmapDescriptorFactory = bitmapDescriptorFromVector(context = LocalContext.current,
-            vectorResId = settings.cap
+
+        pCap = CustomCap(bitmapDescriptorFromVector(context = LocalContext.current, icon = settings.cap)!!,
+            10.0F
         )
-        pCap = CustomCap(bitmapDescriptorFactory!!, 5f)
     }
 
     return Polyline(
@@ -238,8 +273,8 @@ private fun CreatePolyLine(settings : PolylineSettings, points : List<LatLng>) :
 
 
 @Composable
-private fun bitmapDescriptorFromVector(context: Context, vectorResId: Int): BitmapDescriptor? {
-    return ContextCompat.getDrawable(context, vectorResId)?.run {
+private fun bitmapDescriptorFromVector(context: Context, icon: Int): BitmapDescriptor? {
+    return ContextCompat.getDrawable(context, icon)?.run {
         setBounds(0, 0, intrinsicWidth, intrinsicHeight)
         val bitmap = Bitmap.createBitmap(intrinsicWidth, intrinsicHeight, Bitmap.Config.ARGB_8888)
         draw(android.graphics.Canvas(bitmap))
@@ -249,16 +284,7 @@ private fun bitmapDescriptorFromVector(context: Context, vectorResId: Int): Bitm
 
 
 
-fun pathToString(trackingPoints : List<SkydiveDataPoint>, settings : PolylineSettings) : String {
-    val stringPrepend = "&path=color:${settings.hex}|weight:1"
-    var stringAppend = ""
-    for (trackingPoint in trackingPoints) {
-        val lat = trackingPoint.latitude
-        val long = trackingPoint.longitude
-        stringAppend += "|${lat},${long}"
-    }
-    return  stringPrepend + stringAppend
-}
+
 
 fun LatLng.stringConvert() : String{
     return "$latitude,$longitude"
@@ -267,7 +293,7 @@ fun LatLng.stringConvert() : String{
 @Preview(showBackground = true)
 @Composable
 fun StaticGoogleMap(
-    skydive: Skydive = generateSampleJump(),
+    skydive: Jump = generateSampleJump(),
     trackingData: JumpTrackingData = generateSampleTrackingData(),
     onClick: () -> Unit = {}
 ) {
@@ -307,7 +333,7 @@ fun generateStaticMapsUrl(
 
 
     val centreUrl = context.getString(R.string.maps_center_url_prepend) + points.centerPoint().latitude
-    val zoomUrl = "&zoom=$zoom"
+    val zoomUrl = ""
     val sizeUrl = context.getString(R.string.maps_size_url_prepend) + size
     val mapTypeUrl = context.getString(R.string.maps_type_url_prepend) + type
     val keyUrl = context.getString(R.string.maps_key_url_prepend) + key

@@ -7,6 +7,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flow
 import timber.log.Timber
 import java.lang.IllegalArgumentException
@@ -19,6 +21,11 @@ class FirebaseAuthentication : AuthenticationInterface {
             delay(1000)
         }
     }
+
+
+
+
+
 
     val auth = FirebaseAuth.getInstance()
     override fun getCurrentUser(): String? {
@@ -72,7 +79,6 @@ class FirebaseAuthentication : AuthenticationInterface {
         onSucces: (String) -> Unit,
         onFailure: (String) -> Unit
     ) {
-        Timber.d("email=${email}password=$password")
 
         if (password != confirm) {
             onFailure("Passwords do not match.")

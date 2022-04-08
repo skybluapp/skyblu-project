@@ -83,6 +83,7 @@ dependencies {
     //Timber
     implementation 'com.jakewharton.timber:timber:5.0.1'
     implementation(project(":models"))
+    implementation(project(":configuration"))
 
     //WorkManager
     def work_version = "2.7.1"

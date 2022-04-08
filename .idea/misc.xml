@@ -3,13 +3,25 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Android/skyblu-project/configuration/src/main/res/drawable-v24/login.xml" value="0.3015" />
+        <entry key="..\:/Android/skyblu-project/configuration/src/main/res/drawable-v24/logout.xml" value="0.3015" />
+        <entry key="..\:/Android/skyblu-project/configuration/src/main/res/drawable/map.xml" value="0.3015" />
+        <entry key="..\:/Android/skyblu-project/configuration/src/main/res/drawable/wave.xml" value="0.3015" />
         <entry key="..\:/Android/skyblu-project/trackingservice/src/main/res/drawable/tracking.xml" value="0.4345" />
         <entry key="..\:/Android/skyblu-project/userinterface/src/main/res/drawable-v24/blue_plane.xml" value="0.327" />
+        <entry key="..\:/Android/skyblu-project/userinterface/src/main/res/drawable-v24/edit.xml" value="0.301" />
+        <entry key="..\:/Android/skyblu-project/userinterface/src/main/res/drawable-v24/email.xml" value="0.592" />
+        <entry key="..\:/Android/skyblu-project/userinterface/src/main/res/drawable-v24/home.xml" value="0.592" />
+        <entry key="..\:/Android/skyblu-project/userinterface/src/main/res/drawable-v24/parachute.xml" value="0.4725" />
         <entry key="..\:/Android/skyblu-project/userinterface/src/main/res/drawable-v24/person.xml" value="0.4345" />
+        <entry key="..\:/Android/skyblu-project/userinterface/src/main/res/drawable-v24/photo.xml" value="0.4725" />
         <entry key="..\:/Android/skyblu-project/userinterface/src/main/res/drawable/latitude.xml" value="0.4345" />
         <entry key="..\:/Android/skyblu-project/userinterface/src/main/res/drawable/longitude.xml" value="0.4345" />
         <entry key="..\:/Android/skyblu-project/userinterface/src/main/res/drawable/map.xml" value="0.4345" />
+        <entry key="..\:/Android/skyblu-project/userinterface/src/main/res/drawable/parachuteCap.xml" value="0.4725" />
+        <entry key="..\:/Android/skyblu-project/userinterface/src/main/res/drawable/parachute_cap.xml" value="0.4725" />
         <entry key="..\:/Android/skyblu-project/userinterface/src/main/res/drawable/plane.xml" value="0.327" />
+        <entry key="..\:/Android/skyblu-project/userinterface/src/main/res/drawable/wave.xml" value="0.592" />
         <entry key="..\:/UiComponants/app/src/main/res/drawable/add.xml" value="0.3395" />
         <entry key="..\:/UiComponants/app/src/main/res/drawable/ic_launcher_background.xml" value="0.2835" />
         <entry key="..\:/UiComponants/app/src/main/res/drawable/ic_launcher_foreground.xml" value="0.2835" />

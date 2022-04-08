@@ -6,8 +6,9 @@ import androidx.work.*
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.skyblu.data.firestore.TIMEOUT_MILLIS
-import com.skyblu.data.firestore.UploadSkydiverWorker
-import com.skyblu.models.jump.Skydiver
+import com.skyblu.data.firestore.UploadUserWorker
+import com.skyblu.models.jump.User
+import com.skyblu.models.jump.UserParameterNames
 import kotlinx.coroutines.delay
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -17,8 +18,8 @@ class FirebaseStorage : StorageInterface {
 
     override suspend fun uploadProfilePicture(
         applicationContext: Context,
-        skydiverID: String,
-        skydiver: Skydiver,
+        userID: String,
+        user: User,
         uri: Uri,
     ) {
         val uploadProfilePictureWork: OneTimeWorkRequest =
@@ -26,8 +27,8 @@ class FirebaseStorage : StorageInterface {
                 .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .setInputData(
                     workDataOf(
-                        "SKYDIVER_ID" to skydiverID,
-                        "URI" to uri.toString()
+                        UserParameterNames.ID to userID,
+                        UserParameterNames.PHOTO_URL to uri.toString()
                     )
                 )
                 .setConstraints(
@@ -35,24 +36,24 @@ class FirebaseStorage : StorageInterface {
                 )
                 .addTag("upload_profile_picture_work")
                 .build()
-        val uploadSkydiverWork: OneTimeWorkRequest =
-            OneTimeWorkRequestBuilder<UploadSkydiverWorker>()
+        val uploadUserWork: OneTimeWorkRequest =
+            OneTimeWorkRequestBuilder<UploadUserWorker>()
                 .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .setInputData(
                     workDataOf(
-                        "SKYDIVER" to Json.encodeToString(skydiver),
+                        UserParameterNames.USER to Json.encodeToString(user),
                     )
                 )
                 .setConstraints(
                     Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
                 )
-                .addTag("upload_skydiver_work")
+                .addTag("upload_user_work")
                 .build()
         WorkManager.getInstance(applicationContext).beginWith(uploadProfilePictureWork)
-            .then(uploadSkydiverWork).enqueue()
+            .then(uploadUserWork).enqueue()
     }
 
-    override fun getProfilePicture(skydiverID: String): Result<String?> {
+    override fun getProfilePicture(userID: String): Result<String?> {
         TODO("Not yet implemented")
     }
 }
@@ -67,15 +68,14 @@ class UploadProfilePictureWorker(
 
     override suspend fun doWork(): Result {
         val firebaseStorage = Firebase.storage.reference
-        val photoUriString = inputData.getString("URI") ?: return Result.failure()
-        val skydiverID = inputData.getString("SKYDIVER_ID") ?: return Result.failure()
+        val photoUriString = inputData.getString(UserParameterNames.PHOTO_URL) ?: return Result.failure()
+        val userID = inputData.getString(UserParameterNames.ID) ?: return Result.failure()
         var result: Result? = null
         val startTime = System.currentTimeMillis()
-        val url: String? = null
 
-        Timber.d("UploadWorker: $skydiverID")
+        Timber.d("UploadWorker: $userID")
         Timber.d("UploadWorker: $photoUriString")
-        val location = firebaseStorage.child("profilePictures/$skydiverID")
+        val location = firebaseStorage.child("profilePictures/$userID")
         val file = Uri.parse(photoUriString)
         Timber.d("Uploading ${file.path}")
         val task = location.putFile(file)
@@ -91,7 +91,7 @@ class UploadProfilePictureWorker(
                 val downloadUri = task.result.toString()
                 result = Result.success(
                     workDataOf(
-                        "URL" to downloadUri
+                        UserParameterNames.PHOTO_URL to downloadUri
                     )
                 )
             } else {

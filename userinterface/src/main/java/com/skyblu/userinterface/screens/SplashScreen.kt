@@ -12,8 +12,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.skyblu.configuration.Concept
 import com.skyblu.userinterface.R
-import com.skyblu.userinterface.componants.Concept
+
 import com.skyblu.userinterface.ui.theme.ThemeBlueGradient
 import kotlinx.coroutines.delay
 import timber.log.Timber
@@ -25,7 +26,7 @@ fun SplashScreen(navController : NavController){
 
         delay(1000)
         navController.navigate(Concept.LoggedIn.route){
-            popUpTo(Concept.LoggedIn.route){inclusive = true} }
+            popUpTo(Concept.Splash.route){inclusive = true} }
     }
 
 
@@ -37,7 +38,7 @@ fun SplashScreen(navController : NavController){
     ){
         Image(
             painter = painterResource(id = R.drawable.aircraft),
-            contentDescription = "Skyblu Logo",
+            contentDescription = "",
             alignment = Alignment.Center,
             modifier = Modifier.size(200.dp),
         )

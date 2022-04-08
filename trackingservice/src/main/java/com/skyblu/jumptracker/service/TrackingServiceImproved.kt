@@ -72,16 +72,14 @@ class TrackingServiceImproved : Service(), SensorEventListener {
     private var mostRecentAltitude: Float? = null
     private var mostRecentPressure: Float? = null
     private var mostRelevantAltitude: Float? = null
-    private var altitudeUpdateTime : Long = System.currentTimeMillis()
-    var mostRecentVerticalSpeed : Float? = null
+    private var altitudeUpdateTime: Long = System.currentTimeMillis()
+    var mostRecentVerticalSpeed: Float? = null
     private var currentPhase = SkydivePhase.WALKING
     var currentPoint: SkydiveDataPoint? = null
 
-
-
     //Holds starting values of altitude and pressure
     var startAltitude: Float? = null
-    private var skydiveID = UUID.randomUUID().toString()
+    private var jumpID = UUID.randomUUID().toString()
 
     //Holds the value of how frequently a new location is outputted
     private var refreshRate: Long = 1000
@@ -121,7 +119,7 @@ class TrackingServiceImproved : Service(), SensorEventListener {
     //Runs once client is bound to service
     override fun onBind(intent: Intent?): IBinder {
         Timber.d("TrackService Bound")
-        skydiveID = UUID.randomUUID().toString()
+        jumpID = UUID.randomUUID().toString()
         requestLocationUpdates()
         requestPressureUpdates()
         isPaused = false
@@ -191,13 +189,13 @@ class TrackingServiceImproved : Service(), SensorEventListener {
 
     //Updates last pressure whenever a new pressure is received
     override fun onSensorChanged(event: SensorEvent?) {
-
         if (event?.sensor == sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE)) {
             val newPressure = event?.values?.get(0)!!
             val newAltitude = newPressure.hpaToMeters()
             val currentTime = System.currentTimeMillis()
 
             pressuresRecieved++
+            calculateVerticalSpeed(newAltitude)
 
 
             if (startAltitude == null || mostRecentAltitude == null || mostRelevantAltitude == null) {
@@ -210,38 +208,31 @@ class TrackingServiceImproved : Service(), SensorEventListener {
                 return
             }
 
-            if ((mostRelevantAltitude!! - newAltitude).absoluteValue > PRESSURE_THRESHOLD && currentTime > altitudeUpdateTime + 2000 ) {
+            if ((mostRelevantAltitude!! - newAltitude).absoluteValue > PRESSURE_THRESHOLD && currentTime > altitudeUpdateTime + 2000) {
                 Timber.d("Getting Pressure...")
 
-
-                val timeSinceLastUpdate = currentTime - altitudeUpdateTime!!
-                val seconds : Double = timeSinceLastUpdate.toDouble() / 1000
-                mostRecentVerticalSpeed = ((newAltitude - mostRecentAltitude!!) * 1 / seconds).toFloat()
-                if(mostRecentVerticalSpeed!!.absoluteValue > 1000){
-                    mostRecentVerticalSpeed = 0f
-                }
                 altitudeUpdateTime = currentTime
                 mostRelevantAltitude = newAltitude
                 Timber.d("Dispatch by Altitude")
-                mostRecentAltitude = newAltitude
-                mostRecentPressure = newPressure
+
                 dispatch()
-                return
             }
 
+            mostRecentAltitude = newAltitude
+            mostRecentPressure = newPressure
         }
     }
 
     fun dispatch() {
-        if(mostRecentLocation == null){
+        if (mostRecentLocation == null) {
             Timber.d("Dispatch Ignored : No Recent Location")
             return
         }
-        if(mostRecentAltitude == null){
+        if (mostRecentAltitude == null) {
             Timber.d("Dispatch Ignored : No Recent Altitude")
             return
         }
-        if(mostRecentPressure == null){
+        if (mostRecentPressure == null) {
             Timber.d("Dispatch Ignored : No Recent Pressure")
             return
         }
@@ -252,10 +243,10 @@ class TrackingServiceImproved : Service(), SensorEventListener {
             return
         }
         val newPoint = createMostRecentDataPoint()
-        when(currentPoint!!.phase){
+        when (currentPoint!!.phase) {
             SkydivePhase.WALKING -> {
                 Timber.d("Posting Walink")
-                if(newPoint.groundSpeed > 20 && newPoint.altitude > 30){
+                if (newPoint.groundSpeed > 20 && newPoint.altitude > 30) {
                     playTone()
                     currentPoint!!.phase = SkydivePhase.AIRCRAFT
                     trackingServiceCallbacks.postSkydiveDataPoint(currentPoint!!)
@@ -270,14 +261,14 @@ class TrackingServiceImproved : Service(), SensorEventListener {
             }
             SkydivePhase.AIRCRAFT -> {
                 Timber.d("Posting Aircraft")
-                if(newPoint.verticalSpeed < -30 && newPoint.groundSpeed < 44){
+                if (newPoint.verticalSpeed < -30 && newPoint.groundSpeed < 44) {
                     playTone()
                     currentPoint!!.phase = SkydivePhase.FREEFALL
                     trackingServiceCallbacks.postSkydiveDataPoint(currentPoint!!)
                     newPoint.phase = SkydivePhase.FREEFALL
                     currentPoint = newPoint
                     trackingServiceCallbacks.postSkydiveDataPoint(newPoint)
-                }else {
+                } else {
                     newPoint.phase = SkydivePhase.AIRCRAFT
                     currentPoint = newPoint
                     trackingServiceCallbacks.postSkydiveDataPoint(newPoint)
@@ -285,14 +276,14 @@ class TrackingServiceImproved : Service(), SensorEventListener {
             }
             SkydivePhase.FREEFALL -> {
                 Timber.d("Posting Freefall")
-                if(newPoint.verticalSpeed > -30){
+                if (newPoint.verticalSpeed > -30) {
                     playTone()
                     currentPoint!!.phase = SkydivePhase.CANOPY
                     trackingServiceCallbacks.postSkydiveDataPoint(currentPoint!!)
                     newPoint.phase = SkydivePhase.CANOPY
                     currentPoint = newPoint
                     trackingServiceCallbacks.postSkydiveDataPoint(newPoint)
-                }else {
+                } else {
                     newPoint.phase = SkydivePhase.FREEFALL
                     currentPoint = newPoint
                     trackingServiceCallbacks.postSkydiveDataPoint(newPoint)
@@ -300,14 +291,14 @@ class TrackingServiceImproved : Service(), SensorEventListener {
             }
             SkydivePhase.CANOPY -> {
                 Timber.d("Posting Canopy")
-                if(newPoint.verticalSpeed > -0.1 && newPoint.altitude < startAltitude!! + 10){
+                if (newPoint.verticalSpeed > -0.1 && newPoint.altitude < startAltitude!! + 10) {
                     playTone()
                     currentPoint!!.phase = SkydivePhase.LANDED
                     trackingServiceCallbacks.postSkydiveDataPoint(currentPoint!!)
                     newPoint.phase = SkydivePhase.LANDED
                     currentPoint = newPoint
                     trackingServiceCallbacks.postSkydiveDataPoint(newPoint)
-                }else {
+                } else {
                     newPoint.phase = SkydivePhase.CANOPY
                     currentPoint = newPoint
                     trackingServiceCallbacks.postSkydiveDataPoint(newPoint)
@@ -320,7 +311,6 @@ class TrackingServiceImproved : Service(), SensorEventListener {
                 trackingServiceCallbacks.postSkydiveDataPoint(newPoint)
             }
         }
-
     }
 
     override fun onDestroy() {
@@ -330,15 +320,15 @@ class TrackingServiceImproved : Service(), SensorEventListener {
         stopSelf()
     }
 
-    fun createMostRecentDataPoint(phase: SkydivePhase = SkydivePhase.UNKNOWN) : SkydiveDataPoint{
+    fun createMostRecentDataPoint(phase: SkydivePhase = SkydivePhase.UNKNOWN): SkydiveDataPoint {
         return SkydiveDataPoint(
             dataPointID = UUID.randomUUID().toString(),
-            skydiveID = skydiveID,
+            jumpID = jumpID,
             latitude = mostRecentLocation!!.latitude,
             longitude = mostRecentLocation!!.longitude,
             timeStamp = mostRecentLocation!!.time,
             altitude = mostRecentAltitude!! - startAltitude!!,
-            verticalSpeed = mostRecentVerticalSpeed!!,
+            verticalSpeed = speed,
             groundSpeed = mostRecentLocation!!.speed,
             airPressure = mostRecentPressure!!,
             phase = phase
@@ -397,6 +387,26 @@ class TrackingServiceImproved : Service(), SensorEventListener {
         accuracy: Int
     ) {
     }
+
+    var lastSpeedCheck: Long = System.currentTimeMillis()
+    var altitude1: Float? = null
+    var speed : Float = 0F
+    fun calculateVerticalSpeed(altitude2: Float) {
+        if (altitude1 == null) {
+            altitude1 = altitude2
+            return
+        }
+        val currentTime = System.currentTimeMillis()
+        if (currentTime > lastSpeedCheck + 5000){
+            val speedo = (altitude2 - altitude1!!) / 5
+            Timber.d("VERTICAL SPEED " + speedo.toString())
+            speed = speedo
+            lastSpeedCheck = currentTime
+            altitude1 = altitude2
+        }
+
+    }
 }
+
 
 

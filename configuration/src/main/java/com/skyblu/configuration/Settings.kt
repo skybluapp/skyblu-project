@@ -12,6 +12,8 @@ val FREEFALL_ALTITUDE_LOSS_KEY = intPreferencesKey("freefall_altitude_loss_key")
 val FREEFALL_SPEED_LOSS_KEY = intPreferencesKey("freefall_speed_loss_key")
 val FREEFALL_CERTAINTY_KEY = intPreferencesKey("freefall_certainty_key")
 
+
+
 sealed class Settings<T>(
     val key: Preferences.Key<T>,
     val defaultValue: T,
@@ -44,7 +46,6 @@ sealed class Settings<T>(
         defaultValue = 5
     )
 
-    //The
     object FreefallAltitudeLossPerSecondThreshold : Settings<Int>(
         FREEFALL_ALTITUDE_LOSS_KEY,
         defaultValue = 5
@@ -60,7 +61,3 @@ sealed class Settings<T>(
         defaultValue = 5
     )
 }
-
-fun p(FREEFALL_CERTAINTY_KEY: androidx.datastore.preferences.core.Preferences.Key<Int>) {
-}
-

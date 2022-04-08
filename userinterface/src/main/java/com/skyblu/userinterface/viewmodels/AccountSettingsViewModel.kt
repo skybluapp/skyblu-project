@@ -9,10 +9,10 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.skyblu.data.authentication.AuthenticationInterface
-import com.skyblu.data.authentication.FirebaseAuthentication
 import com.skyblu.data.storage.StorageInterface
 import com.skyblu.data.users.SavedUsersInterface
-import com.skyblu.models.jump.Skydiver
+//import com.skyblu.models.jump.Licence
+import com.skyblu.models.jump.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -37,12 +37,12 @@ class AccountSettingsViewModel @Inject constructor(
                 state.thisUser.value = it
             }
         }
-        val thisSkydiver = savedUsers.thisSkydiver()
-        if(thisSkydiver != null){
-            state.username.value = thisSkydiver.username
-            state.bio.value = thisSkydiver.bio
-            state.photoUrl = thisSkydiver.skydiverPhotoUrl
-            Timber.d("URL : ${thisSkydiver.skydiverPhotoUrl}")
+        val thisUser = savedUsers.thisUser()
+        if(thisUser != null){
+            state.username.value = thisUser.username
+            state.bio.value = thisUser.bio
+            state.photoUrl = thisUser.photoUrl
+            Timber.d("URL : ${thisUser.photoUrl}")
         }
         
     }
@@ -53,12 +53,13 @@ class AccountSettingsViewModel @Inject constructor(
                 storage.uploadProfilePicture(
                     applicationContext = context,
                     uri = state.photoUri!!,
-                    skydiverID = "hello",
-                    skydiver = Skydiver(
-                        skydiverID = state.thisUser.value!!,
-                        "",
+                    userID = authentication.getCurrentUser()!!,
+                    user = User(
+                        ID = state.thisUser.value!!,
+                        jumpNumber = state.jumpNumber.value,
                         username = state.username.value,
-                        bio = state.bio.value
+                        bio = state.bio.value,
+//                        licence = state.licence.value
                     )
                 )
             }
@@ -75,7 +76,9 @@ data class AccountSettingsState(
     var photoUrl : String? = null,
     var username: MutableState<String> = mutableStateOf(""),
     var bio: MutableState<String> = mutableStateOf(""),
+    var jumpNumber : MutableState<Int> = mutableStateOf(0),
     var thisUser: MutableState<String?> = mutableStateOf("user"),
+//    var licence: MutableState<Licence> = mutableStateOf(Licence.A)
 )
 
 
