@@ -8,7 +8,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.skyblu.configuration.Concept
 import com.skyblu.configuration.LARGE_PADDING
 import com.skyblu.configuration.SMALL_PADDING
@@ -24,7 +23,7 @@ fun sliderColors(): SliderColors {
 
 @Composable
 fun AppSettingsSlider(
-    appConcepts: Concept = Concept.Plane,
+    appConcepts: Concept = Concept.BlueAircraft,
     title: String? = "Slider",
     value: Float,
     onValueChanged: (Float) -> Unit = {},
@@ -91,7 +90,7 @@ fun AppSettingsSlider(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun AppSettingsRangeSlider(
-    appConcepts: Concept = Concept.Plane,
+    appConcepts: Concept = Concept.BlueAircraft,
     title: String? = "Slider",
     values: ClosedFloatingPointRange<Float>,
     onValueChanged: (ClosedFloatingPointRange<Float>) -> Unit = {},

@@ -1,4 +1,4 @@
-package com.skyblu.uicomponants.componants
+package com.skyblu.userinterface.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

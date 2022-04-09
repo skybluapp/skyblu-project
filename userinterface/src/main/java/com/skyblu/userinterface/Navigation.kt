@@ -10,7 +10,7 @@ import androidx.navigation.compose.rememberNavController
 import com.skyblu.configuration.Concept
 import com.skyblu.models.jump.JumpParams
 import com.skyblu.models.jump.UserParameterNames
-import com.skyblu.uicomponants.componants.SplashScreen
+import com.skyblu.userinterface.screens.SplashScreen
 
 import com.skyblu.userinterface.screens.*
 import com.skyblu.userinterface.screens.settingsScreens.AccountSettingsScreen

@@ -1,8 +1,11 @@
 package com.skyblu.userinterface.screens
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.Button
 import androidx.compose.material.Scaffold
+import androidx.compose.material.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
@@ -11,13 +14,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.skyblu.configuration.Concept
-import com.skyblu.userinterface.componants.*
+import com.skyblu.userinterface.componants.ActionConcept
 import com.skyblu.userinterface.componants.input.ActionConceptList
 import com.skyblu.userinterface.componants.input.AppSettingsCategory
 import com.skyblu.userinterface.componants.scaffold.AppBottomAppBar
 import com.skyblu.userinterface.componants.scaffold.AppTopAppBar
 import com.skyblu.userinterface.viewmodels.SettingsViewModel
-import timber.log.Timber
 
 val SETTINGS_LIST = listOf<Concept>(
     Concept.Account,
@@ -25,34 +27,73 @@ val SETTINGS_LIST = listOf<Concept>(
     Concept.Mapping,
 )
 
-@Preview
+val TRACKING_SETTINGS_LIST = listOf<Concept>(
+    Concept.AircraftThreshold,
+    Concept.FreefallThreshold,
+    Concept.CanopyThreshold
+)
+
+enum class SettingsScreen {
+    ROOT,
+    TRACK,
+    MAPPING,
+}
+
 @Composable()
 fun SettingsScreen(
     navController: NavController = rememberNavController(),
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
-    
+
+    val state = viewModel.state
+
     val settingsConcept = Concept.Settings
     val settingsList = settingsList(navController = navController)
+    val trackingSettingsList = settingsList(navController = navController)
 
     LaunchedEffect(
         key1 = viewModel.loggedIn.value,
         block = {
-            if(!viewModel.loggedIn.value){
+            if (!viewModel.loggedIn.value) {
                 navController.navigate(Concept.LoggedOut.route)
             }
         }
     )
 
+    @Composable
+    fun root() {
+        Column(Modifier.fillMaxSize()) {
+            for (menuAction in settingsList) {
+                AppSettingsCategory(menuAction)
+            }
+        }
+    }
+
+    @Composable
+    fun tracking() {
+        Column(Modifier.fillMaxSize()) {
+            for (menuAction in trackingSettingsList) {
+                AppSettingsCategory(menuAction)
+            }
+        }
+    }
+
+//    val content  = when(state.screen.value){
+//        SettingsScreen.TRACK -> { _ ->
+//
+//        }
+//        SettingsScreen.ROOT -> { _ ->
+//
+//        }
+//
+//        SettingsScreen.MAPPING -> { _ ->
+//
+//        }
+//    }
+//
 
     Scaffold(
-        content = {
-            Column(Modifier.fillMaxSize()) {
-                for (menuAction in settingsList) {
-                    AppSettingsCategory(menuAction)
-                }
-            }
-        },
+        content ={},
         topBar = {
             AppTopAppBar(
                 title = settingsConcept.title,
@@ -76,7 +117,7 @@ fun SettingsScreen(
                     ActionConceptList(
                         menuActions = listOf(
                             ActionConcept(
-                                action = { viewModel.logout()},
+                                action = { viewModel.logout() },
                                 concept = Concept.Logout
                             )
                         )
@@ -85,7 +126,12 @@ fun SettingsScreen(
             )
         },
         bottomBar = {
-            viewModel.currentUser()?.let { AppBottomAppBar(navController = navController, userID = it) }
+            viewModel.currentUser()?.let {
+                AppBottomAppBar(
+                    navController = navController,
+                    userID = it
+                )
+            }
         }
     )
 }
@@ -103,6 +149,10 @@ fun settingsList(navController: NavController): List<ActionConcept> {
     return settingsList
 }
 
-fun logout() {
+@Preview(showBackground = true)
+@Composable
+fun p() {
+    Button(onClick = { /*TODO*/ }) {
 
+    }
 }

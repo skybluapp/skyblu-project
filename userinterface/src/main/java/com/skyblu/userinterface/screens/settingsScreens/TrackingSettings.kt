@@ -33,7 +33,7 @@ fun TrackingSettingsScreen(
 
             Column {
                 AppSettingsSlider(
-                    appConcepts = Concept.Plane,
+                    appConcepts = Concept.BlueAircraft,
                     title = "Aircraft Altitude Threshold",
                     prepend = FT_UNIT_STRING,
                     value = viewModel.aircraftAltitudeThreshold.value.toFloat(),
@@ -42,7 +42,7 @@ fun TrackingSettingsScreen(
                 )
 
                 AppSettingsSlider(
-                    appConcepts = Concept.Plane,
+                    appConcepts = Concept.BlueAircraft,
                     title = "Aircraft Certainty",
                     value = viewModel.aircraftCertainty.value.toFloat(),
                     onValueChanged = { viewModel.aircraftCertainty.value = it },

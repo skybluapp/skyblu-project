@@ -105,7 +105,7 @@ fun AppSettingsCategory(
     Row(
         Modifier
             .fillMaxWidth()
-            .height(MEDIUM_PADDING)
+            .height(55.dp)
             .background(MaterialTheme.colors.background)
             .clickable { menuAction.action() },
         verticalAlignment = Alignment.CenterVertically,
@@ -124,4 +124,5 @@ fun AppSettingsCategory(
             text = menuAction.concept.title,
         )
     }
+
 }

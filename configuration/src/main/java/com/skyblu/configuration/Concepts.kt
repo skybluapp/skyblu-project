@@ -233,9 +233,27 @@ sealed class Concept(
         R.drawable.photo
     )
 
-    object Plane : Concept(
+    object BlueAircraft : Concept(
         DROPZONE_STRING,
         R.drawable.blue_plane
+    )
+
+    object AircraftThreshold : Concept(
+        "Aircraft Detection Altitude",
+        R.drawable.plane,
+        route = "aircraft_detection_altitude"
+    )
+
+    object FreefallThreshold : Concept(
+        "Freefall Detection Speed",
+        R.drawable.freefall,
+        "freefall_detection_altitude"
+    )
+
+    object CanopyThreshold : Concept(
+        "Canopy Detection Speed",
+        R.drawable.parachute,
+        "canopy_detection_speed"
     )
 
     object Previous : Concept(
